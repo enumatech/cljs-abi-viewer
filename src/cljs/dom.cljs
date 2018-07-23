@@ -8,6 +8,8 @@
 (defn slurp [node kids] (doseq [kid kids] (append node kid)) node)
 (defn frag [kids] (doto (js/document.createDocumentFragment) (slurp kids)))
 (defn fragment [& kids] (frag kids))
+(def x (comp frag map))
+(def xi (comp frag map-indexed))
 (defn clear [node] (-> node .-innerHTML (set! "")))
 (defn mount [node kids] (doto node (clear) (append (frag kids))))
 (defn set-attr [node a v] (doto node (.setAttribute (clj->js a) (clj->js v))))
@@ -25,6 +27,7 @@
       (apply elem tag-name attrs kids))))
 
 (def div (H "div"))
+(def span (H "span"))
 
 (def h1 (H "h1"))
 (def h2 (H "h2"))
@@ -40,23 +43,23 @@
 (def td (H "td"))
 
 (defn v-array [arr]
-  (letfn [(col [idx el]
+  (letfn [(column [idx el]
             (tr (th (text (pr-str idx)))
                 (td (text (pr-str el)))))]
-    (frag (map-indexed col arr))))
+    (xi column arr)))
 
 (defn h-array [arr]
   (fragment
-    (tr (frag (map-indexed (fn [idx _el] (th (text (pr-str idx)))) arr)))
-    (tr (frag (map-indexed (fn [_idx el] (td (text (pr-str el)))) arr)))))
+    (tr (xi (fn [idx _el] (th (text (pr-str idx)))) arr))
+    (tr (xi (fn [_idx el] (td (text (pr-str el)))) arr))))
 
 (defn v-map [m]
-  (letfn [(col [[key val]]
+  (letfn [(column [[key val]]
             (tr (th (text (pr-str key)))
                 (td (text (pr-str val)))))]
-    (frag (map col m))))
+    (x column m)))
 
 (defn h-map [m]
   (fragment
-    (tr (frag (map (fn [[key _val]] (th (text (pr-str key)))) m)))
-    (tr (frag (map (fn [[_key val]] (td (text (pr-str val)))) m)))))
+    (tr (x (fn [[key _val]] (th (text (pr-str key)))) m))
+    (tr (x (fn [[_key val]] (td (text (pr-str val)))) m))))
