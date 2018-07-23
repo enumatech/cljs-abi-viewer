@@ -2,15 +2,27 @@ body { padding: 0.5em; }
 
 table {
     border-collapse: collapse;
-    border: 3px solid purple;
+    border: 2px solid purple;
     margin: 0.5em;
 }
 
-th { background-color: lightblue; }
+th { background-color: aliceblue; }
 td,th { border: solid 1px lightblue; }
 
 .abi { border: none; }
-.abi th { text-align: right; }
-.abi th,td { padding: 0.1em 0.5em; }
+.abi th { text-align: right; vertical-align: text-top; }
+.abi th { padding: 0.5em 0.5em; }
+
+.abi .input,
+.abi .return {
+    display: inline-block;
+    padding: 0.2em 0.5em;
+    margin: 0.2em 0.2em;
+    border: 1px dotted gray;
+    border-radius: 4px;
+}
+
+.abi .return { background-color: wheat; border: none; }
+
 .abi .type { font-style: italic; color: grey; }
-.abi .return { background-color: aqua; }
+.abi .indexed { font-weight: bold; }

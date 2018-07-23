@@ -1,6 +1,6 @@
 (ns cljs.dom)
 
-(defn log [& args] (apply js/console.log args))
+(defn log [& args] (apply js/console.log args) (first args))
 (defn $ [selector] (js/document.querySelector selector))
 (defn text [text] (js/document.createTextNode text))
 (defn element [tag-name] (js/document.createElement tag-name))
@@ -32,6 +32,7 @@
 (def h1 (H "h1"))
 (def h2 (H "h2"))
 (def h3 (H "h3"))
+(def h4 (H "h4"))
 
 (def ol (H "ol"))
 (def ul (H "ul"))
