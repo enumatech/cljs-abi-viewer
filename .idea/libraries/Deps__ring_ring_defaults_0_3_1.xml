@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Deps: ring/ring-defaults:0.3.1">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/ring/ring-defaults/0.3.1/ring-defaults-0.3.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

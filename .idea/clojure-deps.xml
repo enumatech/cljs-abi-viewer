@@ -5,6 +5,7 @@
       <set>
         <DepsProjectSettings>
           <option name="createEmptyContentRootDirectories" value="true" />
+          <option name="enabledAliases" value="test" />
           <option name="externalProjectPath" value="$PROJECT_DIR$" />
           <option name="modules">
             <set>
