@@ -1,2 +1,13 @@
-table { border: solid 1px green; }
+body { padding: 0.5em; }
+
+table {
+    border-collapse: collapse;
+    border: 3px solid purple;
+    margin: 0.5em;
+}
+
 th { background-color: lightblue; }
+td,th { border: solid 1px lightblue; }
+
+.abi th { text-align: right; }
+.abi th,td { padding: 0.1em 0.5em; }
