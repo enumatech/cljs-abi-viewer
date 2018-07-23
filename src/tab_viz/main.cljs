@@ -17,7 +17,7 @@
 (defn app []
   (fragment
     (h1 {:style "color: blue"} (text "Tablular visualisations"))
-    (div {:class "abi"} (frag (map (comp table abi/render) abi/example)))
+    (abi/entry abi/example)
     (table
       (tr {:style "background-color: gold"}
           (td

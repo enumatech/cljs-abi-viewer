@@ -9,5 +9,8 @@ table {
 th { background-color: lightblue; }
 td,th { border: solid 1px lightblue; }
 
+.abi { border: none; }
 .abi th { text-align: right; }
 .abi th,td { padding: 0.1em 0.5em; }
+.abi .type { font-style: italic; color: grey; }
+.abi .return { background-color: aqua; }
