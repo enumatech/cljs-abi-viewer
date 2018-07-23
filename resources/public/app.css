@@ -1,5 +1,7 @@
 body { padding: 0.5em; }
 
+h2 { text-decoration: gray solid underline; }
+
 table {
     border-collapse: collapse;
     border: 2px solid purple;
@@ -10,6 +12,7 @@ th { background-color: aliceblue; }
 td,th { border: solid 1px lightblue; }
 
 .abi { border: none; }
+.abi h4 { margin-block-end: 0; }
 .abi th { text-align: right; vertical-align: text-top; }
 .abi th { padding: 0.5em 0.5em; }
 

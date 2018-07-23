@@ -19,7 +19,8 @@
 
 (defn function [f]
   (let [{:keys [name inputs outputs constant payable type]} f
-        hint {:title (pr-str f)}]
+        hint {:title (pr-str f)}
+        hint nil]
     (if-not (= "function" type)
       (do (js/console.error "ABI should be a function" f)
           (div hint (text "ABI ERROR")))
@@ -27,11 +28,12 @@
           (td (x (partial name-or-type "input") inputs)
               (x (partial name-or-type "return") outputs))))))
 
-(defn event [abi]
-  (let [{:keys [name inputs anonymous type]} abi
-        hint {:title (pr-str abi)}]
+(defn event [e]
+  (let [{:keys [name inputs anonymous type]} e
+        hint {:title (pr-str e)}
+        hint nil]
     (if-not (= "event" type)
-      (do (js/console.error "ABI should be an event" abi)
+      (do (js/console.error "ABI should be an event" e)
           (div hint (text "ABI ERROR")))
       (tr (th (merge hint {:class "name"}) (text name))
           (td (x (partial name-or-type "input") inputs))))))
@@ -40,7 +42,7 @@
   (let [{fns :function evs :event} (group-by (comp keyword :type) abi)]
     (div
       {:class "abi"}
-      (h3 (text "Functions"))
+      (h4 (text "Functions"))
       (table (x function fns))
-      (h3 (text "Events"))
+      (h4 (text "Events"))
       (table (x event evs)))))

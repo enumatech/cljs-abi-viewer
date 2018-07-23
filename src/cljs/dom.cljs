@@ -33,6 +33,7 @@
 (def h2 (H "h2"))
 (def h3 (H "h3"))
 (def h4 (H "h4"))
+(def hr (H "hr"))
 
 (def ol (H "ol"))
 (def ul (H "ul"))

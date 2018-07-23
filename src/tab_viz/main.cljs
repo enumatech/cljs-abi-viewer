@@ -1,47 +1,30 @@
 (ns tab-viz.main
   (:require
     [cljs.dom :refer [log mount $ text elem frag fragment
-                      div h1 ul li table tr th td
+                      div h1 h2 h3 h4 hr ul li table tr th td
                       v-array h-array v-map h-map]]
     [cljs.fetch :as fetch]
-    [tab-viz.abi :as abi]))
+    [tab-viz.abi :as abi]
+    [cljs.dom.playground :as playground]))
 
 (def state
   (atom {:oax  nil
          :xchg nil}))
 
-(def example-array
-  ["asd" "qwe" "zxc"])
-
-(def example-map
-  {:asd 123
-   :qwe "zxc"
-   :xxx 'symbol
-   :yyy :keyword})
-
 (defn app []
   (fragment
-    (h1 {:style "color: blue"} (text "Tablular visualisations"))
+    (h1 {:style "color: blue"} (text "Smart Contracts"))
+    (h2 (text "Example"))
     (abi/entry abi/example)
+    (h2 (text "OAX demo token"))
     (abi/entry (-> @state :oax :jsonInterface))
-    (abi/entry (-> @state :xchg :jsonInterface))
-    (table
-      (tr {:style "background-color: gold"}
-          (td
-            (text "asd")
-            (table
-              (tr {:style "background-color: wheat"}
-                  (td (text "qwe")))))))
-
-    (table (v-array example-array))
-    (table (h-array example-array))
-    (table (v-map example-map))
-    (table (h-map example-map))))
+    (h2 (text "0x Exchange"))
+    (abi/entry (-> @state :xchg :jsonInterface))))
 
 ;(time (log "Many apps" (doall (repeatedly 100 app))))
 
 (defn render []
-  (time (mount ($ "#app") (repeatedly 1 app))))
+  (time (mount ($ "#app") (repeatedly 1 app #_playground/render))))
 
 (defn load-contract [contract]
   (-> (str "/net/4/" (name contract) ".json")
