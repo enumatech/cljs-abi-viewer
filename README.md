@@ -51,9 +51,9 @@ I little benchmark showed it's possible to render 3 smart contracts
 (time (log "Many apps" (doall (repeatedly 1000 app))))
 ```
 
-It means we can use this approach to smaller apps and just
-regenerate the whole DOM or big parts of it on every change
-a few times a second.
+It means we can use this approach for smaller apps and just
+regenerate the whole DOM, or big parts of it, a few times a second,
+on every change in the underlying data model.
 
 This opens up the possibility to create vastly simpler
 interactive application architecture than what we see with
