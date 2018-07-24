@@ -4,7 +4,6 @@
     <option name="linkedExternalProjectsSettings">
       <set>
         <DepsProjectSettings>
-          <option name="createEmptyContentRootDirectories" value="true" />
           <option name="enabledAliases" value="test" />
           <option name="externalProjectPath" value="$PROJECT_DIR$" />
           <option name="modules">
@@ -12,7 +11,6 @@
               <option value="$PROJECT_DIR$" />
             </set>
           </option>
-          <option name="useAutoImport" value="true" />
         </DepsProjectSettings>
       </set>
     </option>

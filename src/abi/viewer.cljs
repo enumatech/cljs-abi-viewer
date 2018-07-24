@@ -1,10 +1,10 @@
-(ns tab-viz.main
+(ns abi.viewer
   (:require
     [cljs.dom :refer [log mount $ text elem frag fragment
                       div h1 h2 h3 h4 hr ul li table tr th td
                       v-array h-array v-map h-map]]
     [cljs.fetch :as fetch]
-    [tab-viz.abi :as abi]
+    [abi.widget :as abi]
     [cljs.dom.playground :as playground]))
 
 (def state
@@ -15,11 +15,11 @@
   (fragment
     (h1 {:style "color: blue"} (text "Smart Contracts"))
     (h2 (text "Example"))
-    (abi/entry abi/example)
+    (abi/render abi/example)
     (h2 (text "OAX demo token"))
-    (abi/entry (-> @state :oax :jsonInterface))
+    (abi/render (-> @state :oax :jsonInterface))
     (h2 (text "0x Exchange"))
-    (abi/entry (-> @state :xchg :jsonInterface))))
+    (abi/render (-> @state :xchg :jsonInterface))))
 
 ;(time (log "Many apps" (doall (repeatedly 100 app))))
 
@@ -31,5 +31,7 @@
       fetch/cljson
       (.then #(swap! state assoc contract %))))
 
-(-> (js/Promise.all (into-array (map load-contract [:oax :xchg])))
+(-> (map load-contract [:oax :xchg])
+    into-array
+    js/Promise.all
     (.then render))

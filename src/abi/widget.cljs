@@ -1,4 +1,4 @@
-(ns tab-viz.abi
+(ns abi.widget
   (:require
     [cljs.dom :refer [log mount $ text frag fragment x
                       h1 h2 h3 h4 div span table tr th td
@@ -38,7 +38,7 @@
       (tr (th (merge hint {:class "name"}) (text name))
           (td (x (partial name-or-type "input") inputs))))))
 
-(defn entry [abi]
+(defn render [abi]
   (let [{fns :function evs :event} (group-by (comp keyword :type) abi)]
     (div
       {:class "abi"}

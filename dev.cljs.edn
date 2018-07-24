@@ -1,2 +1,2 @@
 ^{:css-dirs ["resources/public"]}
-{:main          tab-viz.main}
+{:main abi.viewer}
