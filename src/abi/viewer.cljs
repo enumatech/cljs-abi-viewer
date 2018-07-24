@@ -6,38 +6,82 @@
     [cljs.fetch :as fetch]
     [abi.widget :as abi]
     [cljs.dom.playground :as playground]
-    [highland.js :as hl]))
+    [highland.js :as S]))
+
+(defn as-clj [o] (js->clj o :keywordize-keys true))
+
+(def contract-names [:oax :xchg])
+
+(defn contract-file [contract-name-kw]
+  (str "/net/4/" (name contract-name-kw) ".json"))
+
+(def contract-filenames (mapv contract-file contract-names))
 
 (def state
-  (atom {:oax  nil
+  (atom {; Example for 1st time rendering
+         :oax  {:jsonInterface
+                [{:name    "Loading..."
+                  :type    "function"
+                  :inputs  [{:type "address" :name "param"}
+                            {:type "bool"}]
+                  :outputs [{:type "uint256" :name "result"}]}]}
          :xchg nil}))
 
-(defn app []
+(defn reset-contracts! [contracts]
+  (reset! state (zipmap contract-names contracts)))
+
+(defn app [state]
   (fragment
     (h1 {:style "color: blue"} (text "Smart Contracts"))
     (h2 (text "Example"))
     (abi/render abi/example)
     (h2 (text "OAX demo token"))
-    (abi/render (-> @state :oax :jsonInterface))
+    (abi/render (-> state :oax :jsonInterface))
     (h2 (text "0x Exchange"))
-    (abi/render (-> @state :xchg :jsonInterface))))
+    (abi/render (-> state :xchg :jsonInterface))))
 
-;(time (log "Many apps" (doall (repeatedly 100 app))))
+(defn render [state]
+  (time (mount ($ "#app") [(app state) #_(playground/render)])))
 
-(defn render []
-  (time (mount ($ "#app") (repeatedly 1 app #_playground/render))))
+(defn re-render-on-state-change []
+  (add-watch state :app-state
+             (fn [_key _ref _old new]
+               (render new))))
 
-(defn load-contract [contract]
-  (-> (str "/net/4/" (name contract) ".json")
-      fetch/cljson
-      (.then #(swap! state assoc contract %))))
+(defn load-contracts-with-promise-all []
+  (letfn [(load-contract [contract-name-kw]
+            (-> contract-name-kw contract-file fetch/cljson
+                (.then #(swap! state assoc contract-name-kw %))))]
 
-(-> (map load-contract [:oax :xchg])
-    into-array
-    js/Promise.all
-    (.then render))
+    (-> (map load-contract contract-names) into-array js/Promise.all
+        (.then #(render @state)))))
 
+(defn load-contracts-with-stream-chain []
+  (re-render-on-state-change)
 
-(->> (hl #js [110 20 30])
-     (hl/concat (hl #js [1 2 3]))
-     (hl/each log))
+  (let [filename$ (-> contract-filenames to-array S)]
+    (-> filename$
+        (.flatMap (comp S js/fetch))
+        (.flatMap (comp S (memfn json)))
+        (.map as-clj)
+        (.toArray reset-contracts!))))
+
+(defn load-contracts-with-stream-pipeline []
+  (re-render-on-state-change)
+
+  (let [filename$ (-> contract-filenames to-array S)
+        |cljson   (S/pipeline
+                    (S/flatMap (comp S js/fetch))
+                    (S/flatMap (comp S (memfn json)))
+                    (S/map as-clj))]
+    (-> filename$
+        (.pipe |cljson)
+        (.toArray reset-contracts!))))
+
+;;; Load contracts in different ways
+;
+;(load-contracts-with-promise-all)
+;(load-contracts-with-stream-chain)
+(load-contracts-with-stream-pipeline)
+
+(render @state)
