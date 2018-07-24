@@ -23,3 +23,7 @@ It provides simple Clojure functions to wrap the verbose, imperative JS methods.
 
 The main application which `figwheel` is going to refresh, along with the
 styles in `./resources/public/app.css`.
+
+## Example screenshot
+
+![Example screenshot](example-screenshot.png)
