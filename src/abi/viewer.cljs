@@ -5,7 +5,8 @@
                       v-array h-array v-map h-map]]
     [cljs.fetch :as fetch]
     [abi.widget :as abi]
-    [cljs.dom.playground :as playground]))
+    [cljs.dom.playground :as playground]
+    [highland.js :as hl]))
 
 (def state
   (atom {:oax  nil
@@ -35,3 +36,8 @@
     into-array
     js/Promise.all
     (.then render))
+
+
+(->> (hl #js [110 20 30])
+     (hl/concat (hl #js [1 2 3]))
+     (hl/each log))

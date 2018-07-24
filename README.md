@@ -7,7 +7,8 @@ Prerequisite on both macOS and Linux:
 
 ```
 nix-shell
-clj -A:build-dev
+npm install
+clj -A:dev
 ```
 
 ## Motivation
