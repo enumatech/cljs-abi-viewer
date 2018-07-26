@@ -2,7 +2,7 @@
   (:require
     [cljs.dom :refer [log mount $ text elem frag fragment
                       div h1 h2 h3 h4 hr ul li table tr th td
-                      v-array h-array v-map h-map]]
+                      v-array h-array v-map h-map x xi]]
     [cljs.fetch :as fetch]
     [abi.widget :as abi]
     [cljs.dom.playground :as playground]
@@ -17,15 +17,17 @@
 
 (def contract-filenames (mapv contract-file contract-names))
 
-(def state
-  (atom {; Example for 1st time rendering
-         :oax  {:jsonInterface
-                [{:name    "Loading..."
-                  :type    "function"
-                  :inputs  [{:type "address" :name "param"}
-                            {:type "bool"}]
-                  :outputs [{:type "uint256" :name "result"}]}]}
-         :xchg nil}))
+(def initial-state
+  {; Example for 1st time rendering
+   :oax  {:jsonInterface
+          [{:name    "Loading..."
+            :type    "function"
+            :inputs  [{:type "address" :name "param"}
+                      {:type "bool"}]
+            :outputs [{:type "uint256" :name "result"}]}]}
+   :xchg nil})
+
+(def state (atom initial-state))
 
 (defn reset-contracts! [contracts]
   (reset! state (zipmap contract-names contracts)))
@@ -35,10 +37,10 @@
     (h1 {:style "color: blue"} (text "Smart Contracts"))
     (h2 (text "Example"))
     (abi/render abi/example)
-    (h2 (text "OAX demo token"))
-    (abi/render (-> state :oax :jsonInterface))
-    (h2 (text "0x Exchange"))
-    (abi/render (-> state :xchg :jsonInterface))))
+    (x (fn [contract]
+         (fragment (h2 (text (name contract)))
+                   (abi/render (-> state contract :jsonInterface))))
+       contract-names)))
 
 (defn render [state]
   (time (mount ($ "#app") [(app state) #_(playground/render)])))
