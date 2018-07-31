@@ -1,5 +1,6 @@
 (ns abi.viewer
   (:require
+    [nightlight.repl-server]
     [cljs.dom :refer [log mount $ text elem frag fragment
                       div h1 h2 h3 h4 hr ul li table tr th td
                       v-array h-array v-map h-map x xi]]
