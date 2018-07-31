@@ -1,0 +1,7 @@
+{:require  [abi.viewer]
+ :init-fns []
+ :compiler-options {:main         abi.viewer
+                    :foreign-libs [{:file     "node_modules/highland/dist/highland.js"
+                                    :file-min "node_modules/highland/dist/highland.min.js"
+                                    :provides ["highland.js"]
+                                    :global-exports {highland.js highland}}]}}
