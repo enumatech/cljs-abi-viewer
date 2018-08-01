@@ -29,3 +29,6 @@ td,th { border: solid 1px lightblue; }
 
 .abi .type { font-style: italic; color: grey; }
 .abi .indexed { font-weight: bold; }
+
+.dex > tr { vertical-align: top }
+.dex > tr > td { padding: 1em; }

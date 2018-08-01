@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Deps: cljsjs/showdown:1.4.2-0">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/cljsjs/showdown/1.4.2-0/showdown-1.4.2-0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Deps: org.omcljs/om:1.0.0-alpha48">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/omcljs/om/1.0.0-alpha48/om-1.0.0-alpha48.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

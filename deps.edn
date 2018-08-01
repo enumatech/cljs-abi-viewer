@@ -5,6 +5,7 @@
            devcards                        {:mvn/version "0.2.5"}
            ;binaryage/dirac                 {:mvn/version "1.2.36"}
            ;philoskim/debux                 {:mvn/version "0.4.8"}
+           cider/piggieback                {:mvn/version "0.3.8"}
            com.bhauman/figwheel-main       {:mvn/version "0.1.4"}
            com.bhauman/rebel-readline-cljs {:mvn/version "0.1.4"}}
 

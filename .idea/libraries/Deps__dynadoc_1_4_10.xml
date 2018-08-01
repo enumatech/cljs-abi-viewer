@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Deps: dynadoc:1.4.10">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/dynadoc/dynadoc/1.4.10/dynadoc-1.4.10.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

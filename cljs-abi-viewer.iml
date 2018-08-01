@@ -11,6 +11,18 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Deps: org.clojure/clojure:1.9.0" level="project" />
+    <orderEntry type="library" name="Deps: com.cognitect/transit-js:0.8.846" level="project" />
+    <orderEntry type="library" name="Deps: com.cognitect/transit-cljs:0.8.239" level="project" />
+    <orderEntry type="library" name="Deps: org.clojure/tools.logging:0.4.1" level="project" />
+    <orderEntry type="library" name="Deps: org.omcljs/om:1.0.0-alpha48" level="project" />
+    <orderEntry type="library" name="Deps: nrepl:0.4.3" level="project" />
+    <orderEntry type="library" name="Deps: org.clojure/core.async:0.4.474" level="project" />
+    <orderEntry type="library" name="Deps: cljsjs/react:15.5.4-0" level="project" />
+    <orderEntry type="library" name="Deps: cljsjs/showdown:1.4.2-0" level="project" />
+    <orderEntry type="library" name="Deps: sablono:0.8.1" level="project" />
+    <orderEntry type="library" name="Deps: cljsjs/react-dom:15.5.4-0" level="project" />
+    <orderEntry type="library" name="Deps: cider/piggieback:0.3.8" level="project" />
+    <orderEntry type="library" name="Deps: devcards:0.2.5" level="project" />
     <orderEntry type="library" name="Deps: com.bhauman/figwheel-main:0.1.4" level="project" />
     <orderEntry type="library" name="Deps: org.clojure/clojurescript:1.10.339" level="project" />
     <orderEntry type="library" name="Deps: com.bhauman/rebel-readline-cljs:0.1.4" level="project" />
@@ -93,5 +105,11 @@
     <orderEntry type="library" name="Deps: joda-time:2.8.2" level="project" />
     <orderEntry type="library" name="Deps: com.googlecode.json-simple/json-simple:1.1.1" level="project" />
     <orderEntry type="library" name="Deps: org.javassist/javassist:3.18.1-GA" level="project" />
+    <orderEntry type="library" name="Deps: org.clojure/tools.analyzer.jvm:0.7.0" level="project" />
+    <orderEntry type="library" name="Deps: org.clojure/tools.analyzer:0.6.9" level="project" />
+    <orderEntry type="library" name="Deps: org.clojure/core.memoize:0.5.9" level="project" />
+    <orderEntry type="library" name="Deps: org.ow2.asm/asm-all:4.2" level="project" />
+    <orderEntry type="library" name="Deps: org.clojure/core.cache:0.6.5" level="project" />
+    <orderEntry type="library" name="Deps: org.clojure/data.priority-map:0.0.7" level="project" />
   </component>
 </module>

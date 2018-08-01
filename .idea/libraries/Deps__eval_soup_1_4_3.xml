@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Deps: eval-soup:1.4.3">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/eval-soup/eval-soup/1.4.3/eval-soup-1.4.3.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

@@ -1,11 +1,28 @@
 (ns cljs.dom)
 
+(defprotocol Elem
+  (render [data]))
+
 (defn log [& args] (apply js/console.log args) (first args))
 (defn $ [selector] (js/document.querySelector selector))
 (defn text [text] (js/document.createTextNode text))
 (defn element [tag-name] (js/document.createElement tag-name))
 (defn append [node kid] (.appendChild node kid))
-(defn slurp [node kids] (doseq [kid kids] (append node kid)) node)
+
+(defn slurp [node kids]
+  (doseq [kid kids]
+    (try
+      (append node
+              (if (satisfies? Elem kid)
+                (render kid)
+                kid))
+      (catch js/TypeError e
+        (js/console.error "Can't render elem" (type kid) (pr-str kid))
+        (throw e)
+        (append node
+                (text (pr-str kid))))))
+  node)
+
 (defn frag [kids] (doto (js/document.createDocumentFragment) (slurp kids)))
 (defn fragment [& kids] (frag kids))
 (def x (comp frag map))
@@ -28,6 +45,8 @@
 
 (def div (H "div"))
 (def span (H "span"))
+(def br (H "br"))
+(def hr (H "hr"))
 
 (def h1 (H "h1"))
 (def h2 (H "h2"))
@@ -47,21 +66,33 @@
 (defn v-array [arr]
   (letfn [(column [idx el]
             (tr (th (text (pr-str idx)))
-                (td (text (pr-str el)))))]
+                (td {} el)))]
     (xi column arr)))
 
 (defn h-array [arr]
   (fragment
     (tr (xi (fn [idx _el] (th (text (pr-str idx)))) arr))
-    (tr (xi (fn [_idx el] (td (text (pr-str el)))) arr))))
+    (tr (xi (fn [_idx el] (td {} el)) arr))))
 
 (defn v-map [m]
   (letfn [(column [[key val]]
             (tr (th (text (pr-str key)))
-                (td (text (pr-str val)))))]
+                (td {} val)))]
     (x column m)))
 
 (defn h-map [m]
   (fragment
     (tr (x (fn [[key _val]] (th (text (pr-str key)))) m))
-    (tr (x (fn [[_key val]] (td (text (pr-str val)))) m))))
+    (tr (x (fn [[_key val]] (td {} val)) m))))
+
+(extend-protocol Elem
+  number
+  (render [num] (render (pr-str num)))
+  string
+  (render [s] (text s))
+  PersistentVector
+  (render [v] (v-array v))
+  PersistentHashSet
+  (render [s] (x render s))
+  PersistentArrayMap
+  (render [m] (v-map m)))

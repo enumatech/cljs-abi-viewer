@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Deps: devcards:0.2.5">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/devcards/devcards/0.2.5/devcards-0.2.5.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
