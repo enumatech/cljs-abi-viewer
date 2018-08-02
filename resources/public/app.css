@@ -13,6 +13,8 @@ td,th { border: solid 1px lightblue; padding: 0.2em;}
 
 .number { color: blue; }
 .symbol { font-family: monospace; }
+.set { border: 1px dashed burlywood; border-radius: 2px; }
+.set > .elem { display: block; border: 1px dotted green; border-radius: 4px; margin: 0.2em; }
 
 .party img { width: 36px; height: 36px; }
 

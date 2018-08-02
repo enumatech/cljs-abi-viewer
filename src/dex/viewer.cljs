@@ -40,7 +40,9 @@
   {:alice {:party      Alice
            :balances   {'WETH 100
                         'ASD  123}
-           :order-book #{(new-trade Bob 4 'ASD 1 'WETH)}}
+           :order-book #{(new-trade Bob 4 'ASD 1 'WETH)
+                         (new-trade Bob 5 'ASD 1 'WETH)
+                         (new-trade Bob 6 'ASD 1 'WETH)}}
 
    :bob   {:party      Bob
            :balances   {'WETH 90

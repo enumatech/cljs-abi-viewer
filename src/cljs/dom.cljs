@@ -91,13 +91,22 @@
 (extend-protocol Elem
   number
   (render [num] (span {:class "number"} (pr-str num)))
+
   string
   (render [s] (text s))
+
   PersistentVector
-  (render [v] (span {:class "set"} (v-array v)))
+  (render [v] (span {:class "vector"} (v-array v)))
+
   PersistentHashSet
-  (render [s] (x render s))
+  (render [a-set]
+    (div {:class "set"}
+         (frag (->> a-set
+                    (map render)
+                    (map #(attrs % {:class "elem"}))))))
+
   PersistentArrayMap
   (render [m] (table {:class "map"} (v-map m)))
+
   Symbol
   (render [sym] (span {:class "symbol"} (name sym))))
