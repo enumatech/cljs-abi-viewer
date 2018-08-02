@@ -12,10 +12,11 @@
 (defn slurp [node kids]
   (doseq [kid kids]
     (try
-      (append node
-              (if (satisfies? Elem kid)
-                (render kid)
-                kid))
+      (when-not (nil? kid)
+        (append node
+                (if (satisfies? Elem kid)
+                  (render kid)
+                  kid)))
       (catch js/TypeError e
         (js/console.error "Can't render elem" (type kid) (pr-str kid))
         (throw e)
@@ -45,6 +46,8 @@
 
 (def div (H "div"))
 (def span (H "span"))
+(def i (H "i"))
+(def img (H "img"))
 (def br (H "br"))
 (def hr (H "hr"))
 
@@ -52,7 +55,6 @@
 (def h2 (H "h2"))
 (def h3 (H "h3"))
 (def h4 (H "h4"))
-(def hr (H "hr"))
 
 (def ol (H "ol"))
 (def ul (H "ul"))
@@ -95,4 +97,4 @@
   PersistentHashSet
   (render [s] (x render s))
   PersistentArrayMap
-  (render [m] (v-map m)))
+  (render [m] (table (v-map m))))
