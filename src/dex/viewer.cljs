@@ -18,7 +18,7 @@
 
 (defrecord Amt [amount token]
   Elem
-  (render [this] (render (str amount " " (name token)))))
+  (render [this] (fragment amount " " token)))
 
 (defrecord Trade [party buy sell]
   Elem

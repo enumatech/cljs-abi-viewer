@@ -11,6 +11,9 @@ table {
 th { background-color: aliceblue; }
 td,th { border: solid 1px lightblue; padding: 0.2em;}
 
+.number { color: blue; }
+.symbol { font-family: monospace; }
+
 .party img { width: 36px; height: 36px; }
 
 .abi { border: none; }
