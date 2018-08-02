@@ -27,14 +27,10 @@
   (render [{:keys [party buy sell]}]
     (span {} party (i "has ") buy " & " (i "wants ") sell "")))
 
-(def #_once T
-  "Application time"
-  (atom 0))
+; Application time
+(defonce T (atom 0))
 
-(def initial-state
-  (merge {:time @T} (first demo/steps)))
-
-(def #_once state (atom initial-state))
+(def #_once state (atom nil))
 
 (defn order-book> [order-book]
   (v-array order-book))
@@ -94,10 +90,14 @@
 
 (add-watch state :app-state on-state-change)
 
-(defn on-time-change [_key _ref old-time new-time]
-  (when-not (= old-time new-time)
-    (reset! state (assoc (get demo/steps new-time) :time new-time))))
+(defn app-state-at [t]
+  (assoc (get demo/steps t) :time t))
+
+(defn on-time-change [_key _ref _old-time new-time]
+  (reset! state (app-state-at new-time)))
 
 (add-watch T :app-time on-time-change)
 
+; Force app-state recalculation
+(swap! T identity)
 (show-app @state)
