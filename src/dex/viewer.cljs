@@ -23,7 +23,7 @@
     (fragment amount " " token))
 
 
-  dex/Trade
+  dex/Order
   (render [{:keys [party buy sell]}]
     (span {} party (i "has ") buy " & " (i "wants ") sell "")))
 
@@ -56,11 +56,11 @@
     ;(h-map (get state Bob))
     (table {:class "dex"}
            (tr (th "Alice")
-               (th "Charlie")
+               (th "Whisper")
                (th "Bob"))
            (tr
              (td (party> (get state Alice)))
-             (td (party> (get state Charlie)))
+             (td (v-array (get state :whisper)))
              (td (party> (get state Bob)))))))
 
 (defn shift? [^js/KeyboardEvent ev]

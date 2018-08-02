@@ -1,5 +1,5 @@
 (ns dex.demo
-  (:require [dex.core :as dex :refer [->Party new-trade]]))
+  (:require [dex.core :as dex :refer [->Party new-order]]))
 
 (def Alice (->Party "Alice" "0x1111"))
 (def Bob (->Party "Bob" "0x2222"))
@@ -9,23 +9,29 @@
 
 (def steps
   [{Alice {:party      Alice
-           :balances   {'WETH 100
-                        'ASD  123}
+           :balances   {'WETH 10
+                        'ASD  0}
            :order-book #{}}}
 
    {Alice {:party      Alice
-           :balances   {'WETH 100
-                        'ASD  123}
-           :order-book #{(new-trade Bob 4 'ASD 1 'WETH)
-                         (new-trade Bob 5 'ASD 1 'WETH)
-                         (new-trade Bob 6 'ASD 1 'WETH)}}}
+           :balances   {'WETH 10
+                        'ASD  0}
+           :order-book #{}}
+    :whisper [{}]}
 
    {Alice {:party      Alice
            :balances   {'WETH 100
                         'ASD  123}
-           :order-book #{(new-trade Bob 4 'ASD 1 'WETH)
-                         (new-trade Bob 5 'ASD 1 'WETH)
-                         (new-trade Bob 6 'ASD 1 'WETH)}}
+           :order-book #{(new-order Bob 4 'ASD 1 'WETH)
+                         (new-order Bob 5 'ASD 1 'WETH)
+                         (new-order Bob 6 'ASD 1 'WETH)}}}
+
+   {Alice {:party      Alice
+           :balances   {'WETH 100
+                        'ASD  123}
+           :order-book #{(new-order Bob 4 'ASD 1 'WETH)
+                         (new-order Bob 5 'ASD 1 'WETH)
+                         (new-order Bob 6 'ASD 1 'WETH)}}
 
     Bob   {:party      Bob
            :balances   {'WETH 90
@@ -40,12 +46,12 @@
    {Alice {:party      Alice
            :balances   {'WETH 100
                         'ASD  123}
-           :order-book #{(new-trade Bob 4 'ASD 1 'WETH)
-                         (new-trade Bob 5 'ASD 1 'WETH)
-                         (new-trade Bob 6 'ASD 1 'WETH)}}
+           :order-book #{(new-order Bob 4 'ASD 1 'WETH)
+                         (new-order Bob 5 'ASD 1 'WETH)
+                         (new-order Bob 6 'ASD 1 'WETH)}}
 
     Bob   {:party      Bob
            :balances   {'WETH 90
                         'ASD  456}
-           :order-book [(new-trade Alice 2 'WETH 6 'ASD)
-                        (new-trade Alice 12 'WETH 16 'ASD)]}}])
+           :order-book [(new-order Alice 2 'WETH 6 'ASD)
+                        (new-order Alice 12 'WETH 16 'ASD)]}}])

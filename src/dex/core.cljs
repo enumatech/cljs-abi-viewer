@@ -2,9 +2,9 @@
 
 (defrecord Party [nickname address])
 (defrecord Amt [amount token])
-(defrecord Trade [party buy sell])
+(defrecord Order [party buy sell])
 
-(defn new-trade [party buy-amt buy-token sell-amt sell-token]
-  (->Trade party
+(defn new-order [party buy-amt buy-token sell-amt sell-token]
+  (->Order party
            (->Amt buy-amt buy-token)
            (->Amt sell-amt sell-token)))
