@@ -36,19 +36,24 @@
 (def Dave (->Party "Dave" "0x4444"))
 (def Eve (->Party "Eve" "0x666"))
 
-(def initial-state
-  {:alice {:party      Alice
-           :balances   {'WETH 100
-                        'ASD  123}
-           :order-book #{(new-trade Bob 4 'ASD 1 'WETH)
-                         (new-trade Bob 5 'ASD 1 'WETH)
-                         (new-trade Bob 6 'ASD 1 'WETH)}}
+(def #_once T
+  "Application time"
+  (atom 0))
 
-   :bob   {:party      Bob
-           :balances   {'WETH 90
-                        'ASD  456}
-           :order-book [(new-trade Alice 2 'WETH 6 'ASD)
-                        (new-trade Alice 12 'WETH 16 'ASD)]}})
+(def initial-state
+  {:time @T
+   Alice {:party      Alice
+          :balances   {'WETH 100
+                       'ASD  123}
+          :order-book #{(new-trade Bob 4 'ASD 1 'WETH)
+                        (new-trade Bob 5 'ASD 1 'WETH)
+                        (new-trade Bob 6 'ASD 1 'WETH)}}
+
+   Bob   {:party      Bob
+          :balances   {'WETH 90
+                       'ASD  456}
+          :order-book [(new-trade Alice 2 'WETH 6 'ASD)
+                       (new-trade Alice 12 'WETH 16 'ASD)]}})
 
 (def #_once state (atom initial-state))
 
@@ -66,19 +71,50 @@
 
 (defn app [state]
   (fragment
-    (h1 "DEX")
-    (h-map (:alice state))
+    (h1 "DEX (time: " (:time state) ")")
+    (h-map (get state Alice))
     (hr)
-    (h-map (:bob state))
+    (h-map (get state Bob))
     (table {:class "dex"}
            (tr
-             (td (party> (:alice state)))
-             (td (party> (:bob state)))))))
+             (td (party> (get state Alice)))
+             (td (party> (get state Bob)))))))
+
+(defn shift? [^js/KeyboardEvent ev]
+  (and (.-shiftKey ev)
+       (not (.-ctrlKey ev))
+       (not (.-altKey ev))
+       (not (.-metaKey ev))))
+
+(defn shift-left? [^js/KeyboardEvent ev]
+  (and (shift? ev) (= (.-key ev) "ArrowLeft")))
+
+(defn shift-right? [^js/KeyboardEvent ev]
+  (and (shift? ev) (= (.-key ev) "ArrowRight")))
+
+(defn dispatch-keypress [^js/KeyboardEvent ev]
+  ;(log "Key:" ev)
+  (cond
+    (shift-left? ev) (swap! T dec)
+    (shift-right? ev) (swap! T inc)))
+
+(defonce keypresses
+         (atom (js/document.addEventListener "keydown" dispatch-keypress)))
 
 (defn show-app [state]
-  (log :state state)
+  ;(log :state state)
   (time (mount ($ "#app") [(app state)])))
 
-(defn on-state-change [_key _ref old new] (when-not (= old new) (show-app new)))
+(defn on-state-change [_key _ref old new]
+  (when-not (= old new)
+    (show-app new)))
+
 (add-watch state :app-state on-state-change)
+
+(defn on-time-change [_key _ref old new]
+  (when-not (= old new)
+    (show-app (assoc @state :time new))))
+
+(add-watch T :app-time on-time-change)
+
 (show-app @state)
