@@ -48,7 +48,7 @@
   (fragment
     (h1 "DEX (time: " (:time state) ")")
     ;(h-map (get state Alice))
-    ;(hr)
+    ;(get state :whisper)
     ;(h-map (get state Bob))
     (table {:class "dex"}
            (tr (th "Alice")
@@ -56,7 +56,7 @@
                (th "Bob"))
            (tr
              (td (party> (get state Alice)))
-             (td (v-array (get state :whisper)))
+             (td (get state :whisper))
              (td (party> (get state Bob)))))))
 
 (defn shift? [^js/KeyboardEvent ev]

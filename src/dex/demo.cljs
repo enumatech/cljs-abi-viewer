@@ -1,7 +1,8 @@
 (ns dex.demo
   (:require [dex.core :as dex :refer [->Party new-order]]
             [com.rpl.specter :as s
-             :refer [keypath subset NIL->SET VAL END]
+             :refer [NIL->SET VAL END NONE-ELEM NONE
+                     keypath subset set-elem]
              :refer-macros [select transform setval]]))
 
 (def Alice (->Party "Alice" "0x1111"))
@@ -25,20 +26,16 @@
 
 (def step2
   (->> step1
-       (transform [(keypath Alice) :order-book NIL->SET]
-                  (fn [orders] (conj orders alices-order)))))
+       (setval [(keypath Alice) :order-book NONE-ELEM] alices-order)))
 
 (def step3
   (->> step2
-       (transform [:whisper NIL->SET]
-                  (fn [orders] (conj orders alices-order)))))
+       (setval [:whisper NONE-ELEM] alices-order)))
 
 (def step4
   (->> step3
-       (transform [(keypath Bob) :order-book NIL->SET]
-                  (fn [orders] (conj orders alices-order)))
-       (transform [:whisper NIL->SET]
-                  (fn [orders] (disj orders alices-order)))))
+       (setval [(keypath Bob) :order-book NONE-ELEM] alices-order)
+       (setval [:whisper (set-elem alices-order)] NONE)))
 
 (def steps
   [step1 step2 step3 step4
