@@ -23,14 +23,14 @@
                    credit " credit, "
                    withdrawal " withdrawal"))))
 
-(defrecord Channel [channel-id left right])
+(defrecord Channel [channel-id round left right])
 
 (extend-type Channel dom/Elem
-  (render [{:keys [channel-id left right] :as ch}]
+  (render [{:keys [channel-id round left right] :as ch}]
     (let [side-row (fn [{:keys [party deposit credit withdrawal] :as _side}]
                      (tr (th party) (td deposit) (td credit) (td withdrawal)))]
       (table
-        (tr (td (str "chID: " channel-id))
+        (tr (td (i (str "chID: " channel-id)) (br) (str "Round: " round))
             (th "Deposit") (th "Credit") (th "Withdrawal"))
         (side-row left)
         (side-row right)))))
@@ -60,6 +60,7 @@
 (defn open-channel [state party1 party2]
   (let [channel-id (-> state :channel-registry :channel-counter)
         channel    (map->Channel {:channel-id channel-id
+                                  :round      -1
                                   :left       (map->ChannelSide
                                                 {:party      party1
                                                  :deposit    0
@@ -79,20 +80,23 @@
 (defn deposit-plan [state party channel-id amount]
   (->> state
        (transform [(keypath party) :channel :left :deposit]
-                  (partial inc-by amount))))
+                  (partial inc-by amount))
+       (transform [(keypath party) :channel :round] inc)))
 
 (defn transfer-plan [state src dst channel-id amount]
   (->> state
        (transform [(keypath src) :channel :left :credit]
                   (partial dec-by amount))
        (transform [(keypath src) :channel :right :credit]
-                  (partial inc-by amount))))
+                  (partial inc-by amount))
+       (transform [(keypath src) :channel :round] inc)))
 
 (defn deposit [state party channel-id amount]
   (->> state
        (transform (weth-balance party) (partial dec-by amount))
        (transform (weth-balance "Registry") (partial inc-by amount))
-       (transform [:channel-registry :channels channel-id :left :deposit] (partial inc-by amount))))
+       (transform [:channel-registry :channels channel-id :left :deposit] (partial inc-by amount))
+       (transform [:channel-registry :channels channel-id :round] inc)))
 
 ; ============  Steps  ==============
 
