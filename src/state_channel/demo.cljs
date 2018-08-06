@@ -44,6 +44,19 @@
                                   "Registry" 0}}
    Bob               {:channel nil}})
 
+; ============  Paths and helper functions  ==============
+
+(defn dec-by [by amount] (- amount by))
+(defn inc-by [by amount] (+ amount by))
+
+(defn weth-balance [party]
+  (path [:weth :balanceOf (keypath party)]))
+
+(defn channel-state [cid]
+  (path [:channel-registry :channels cid]))
+
+; ============  Actions  ==============
+
 (defn open-channel [state party1 party2]
   (let [channel-id (-> state :channel-registry :channel-counter)
         channel    (map->Channel {:channel-id channel-id
@@ -63,27 +76,25 @@
          (setval [(keypath party1) :channel] channel)
          (setval [(keypath party2) :channel] channel))))
 
-(defn dec-by [by amount] (- amount by))
-(defn inc-by [by amount] (+ amount by))
-
-(defn weth-balance [party]
-  (path [:weth :balanceOf (keypath party)]))
-
-(defn channel-state [cid]
-  (path [:channel-registry :channels cid]))
-
-; ============  Steps  ==============
-
 (defn deposit-plan [state party channel-id amount]
   (->> state
        (transform [(keypath party) :channel :left :deposit]
                   (partial inc-by amount))))
 
+(defn transfer-plan [state src dst channel-id amount]
+  (->> state
+       (transform [(keypath src) :channel :left :credit]
+                  (partial dec-by amount))
+       (transform [(keypath src) :channel :right :credit]
+                  (partial inc-by amount))))
+
 (defn deposit [state party channel-id amount]
- (->> state
-      (transform (weth-balance party) (partial dec-by amount))
-      (transform (weth-balance "Registry") (partial inc-by amount))
-      (transform [:channel-registry :channels channel-id :left :deposit] (partial inc-by amount))))
+  (->> state
+       (transform (weth-balance party) (partial dec-by amount))
+       (transform (weth-balance "Registry") (partial inc-by amount))
+       (transform [:channel-registry :channels channel-id :left :deposit] (partial inc-by amount))))
+
+; ============  Steps  ==============
 
 (def step-open-channel
   (-> initial-state (open-channel Alice Bob)))
@@ -105,9 +116,20 @@
        (setval [(keypath Bob) :channel]
                (select (channel-state alice-bob-cid) step-deposit))))
 
+(def step-transfer-plan
+  (-> step-deposit-event
+      (transfer-plan Alice Bob alice-bob-cid 7)))
+
+(def step-transfer
+  (->> step-transfer-plan
+       (setval [(keypath Bob) :channel]
+               (select [(keypath Alice) :channel] step-transfer-plan))))
+
 (def steps
   [initial-state
    step-open-channel
    step-deposit-plan
    step-deposit
-   step-deposit-event])
+   step-deposit-event
+   step-transfer-plan
+   step-transfer])
