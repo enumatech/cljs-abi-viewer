@@ -92,9 +92,10 @@
 (extend-protocol Elem
   number
   (render [num]
-    (if (zero? num)
-     (span {:class "number zero"} (pr-str num))
-     (span {:class "number"} (pr-str num))))
+    (cond
+      (< num 0) (span {:class "number negative"} (pr-str num))
+      (> num 0) (span {:class "number positive"} (pr-str num))
+      :else (span {:class "number zero"} (pr-str num))))
 
   Keyword
   (render [num] (span {:class "keyword"} (code (pr-str num))))
