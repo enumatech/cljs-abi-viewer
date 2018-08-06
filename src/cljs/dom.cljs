@@ -92,6 +92,9 @@
   number
   (render [num] (span {:class "number"} (pr-str num)))
 
+  Keyword
+  (render [num] (span {:class "keyword"} (code (pr-str num))))
+
   string
   (render [s] (text s))
 

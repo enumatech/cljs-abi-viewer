@@ -5,9 +5,10 @@
              div span i img br hr h1 h2 h3 h4 hr ul li table tr th td
              v-array h-array v-map h-map x xi]]
     [dex.demo]
-    [dex.ui]))
+    [dex.ui]
+    [state-channel.demo]))
 
-(def steps dex.demo/steps)
+(def steps state-channel.demo/steps)
 
 ; Application time
 (defonce T (atom 0))
@@ -18,7 +19,8 @@
   (fragment
     (h1 "Application history viewer (time: " (:time state) ")")
     (h2 "State")
-    (dex.ui/ui state)))
+    ;(h-array state-channel.demo/steps)
+    state))
 
 (defn shift? [^js/KeyboardEvent ev]
   (and (.-shiftKey ev)
