@@ -32,14 +32,14 @@
 
 (extend-type Channel dom/Elem
   (render [{:keys [channel-id round left right signed] :as ch}]
-    (let [side-row (fn [{:keys [party deposit credit withdrawal] :as _side}]
+    (let [side-row (fn [{:keys [party deposit credit withdrawal]}]
                      (tr (th {} party) (td deposit) (td credit) (td withdrawal)))]
       (table (if signed {:class "signed"} {})
-        (tr (td (i (str "chID: " channel-id)) (br)
-                (str "Round: " round))
-            (th "Deposit") (th "Credit") (th "Withdrawal"))
-        (side-row left)
-        (side-row right)))))
+             (tr (td (i (str "chID: " channel-id)) (br)
+                     (str "Round: " round))
+                 (th "Deposit") (th "Credit") (th "Withdrawal"))
+             (side-row left)
+             (side-row right)))))
 
 (defrecord System [])
 (extend-type System Elem
@@ -63,8 +63,17 @@
 (defn weth-balance [party]
   (path [:weth :balanceOf (keypath party)]))
 
-(defn channel-state [cid]
-  (path [:channel-registry :channels cid]))
+(defn chain-channel [channel-id]
+  (path [:channel-registry :channels channel-id]))
+
+(defn channel-balance [ch side]
+  (let [{:keys [deposit credit withdrawal]} (-> ch side)]
+    (-> deposit
+        (+ credit)
+        (- withdrawal))))
+
+(defn channel-id [state party]
+  (-> state (get party) :channel :channel-id))
 
 ; ============  Actions  ==============
 
@@ -106,78 +115,69 @@
   (->> state
        (transform (weth-balance party) (partial dec-by amount))
        (transform (weth-balance "Registry") (partial inc-by amount))
-       (transform [:channel-registry :channels channel-id :left :deposit] (partial inc-by amount))
-       (transform [:channel-registry :channels channel-id :round] inc)))
+       (transform [(chain-channel channel-id) :left :deposit] (partial inc-by amount))
+       (transform [(chain-channel channel-id) :round] inc)))
 
 ; ============  Steps  ==============
 
-(def step-open-channel
-  (-> initial-state (open-channel Alice Bob)))
+(defn step-open-channel [state]
+  (-> state
+      (open-channel Alice Bob)))
 
-(def alice-bob-cid
-  (->> step-open-channel
-       (select [:channel-registry :channels MAP-KEYS])
-       (apply max)))
+(defn step-deposit-plan [state]
+  (-> state
+      (deposit-plan Alice (channel-id state Alice) 10)))
 
-(def step-deposit-plan
-  (-> step-open-channel
-      (deposit-plan Alice alice-bob-cid 10)))
+(defn step-deposit [state]
+  (-> state
+      (deposit Alice (channel-id state Alice) 10)))
 
-(def step-deposit
-  (-> step-deposit-plan (deposit Alice alice-bob-cid 10)))
-
-(def step-deposit-event
-  (->> step-deposit
+(defn step-deposit-event [state]
+  (->> state
        (setval [(keypath Bob) :channel]
-               (select-one (channel-state alice-bob-cid) step-deposit))))
+               (select-one (chain-channel (channel-id state Alice)) state))))
 
-(def step-transfer-plan
-  (-> step-deposit-event
-      (transfer-plan Alice Bob alice-bob-cid 7)))
+(defn step-transfer-plan [state]
+  (-> state
+      (transfer-plan Alice Bob (channel-id state Alice) 7)))
 
-(def step-transfer
-  (->> step-transfer-plan
+(defn step-transfer [state]
+  (->> state
        (setval [(keypath Bob) :channel]
-               (select-one [(keypath Alice) :channel] step-transfer-plan))))
+               (select-one [(keypath Alice) :channel] state))))
 
-(defn channel-balance [ch side]
-  (let [{:keys [deposit credit withdrawal]} (-> ch side)]
-    (-> deposit
-        (+ credit)
-        (- withdrawal))))
+(defn step-update-plan [state]
+  (let [alice-ch      (path [(keypath Alice) :channel])
+        alice-channel (select-one alice-ch state)]
+    (->> state
+         (setval [alice-ch :left :withdrawal]
+                 (channel-balance alice-channel :left))
+         (setval [alice-ch :right :withdrawal]
+                 (channel-balance alice-channel :right))
+         (transform [alice-ch :round] inc)
+         (setval [alice-ch :signed] true))))
 
-
-(def step-update-plan
-  (let [alice-ch (select-one [(keypath Alice) :channel] step-transfer)]
-    (->> step-transfer
-         (setval [(keypath Alice) :channel :left :withdrawal]
-                 (channel-balance alice-ch :left))
-         (setval [(keypath Alice) :channel :right :withdrawal]
-                 (channel-balance alice-ch :right))
-         (transform [(keypath Alice) :channel :round] inc)
-         (setval [(keypath Alice) :channel :signed] true))))
-
-(def step-send-update-plan
-  (->> step-update-plan
+(defn step-send-update-plan [state]
+  (->> state
        (setval [(keypath Bob) :channel]
-               (select-one [(keypath Alice) :channel] step-update-plan))))
+               (select-one [(keypath Alice) :channel] state))))
 
-(def step-update
-  (let [bob-ch (-> (select-one [(keypath Bob) :channel] step-send-update-plan)
+(defn step-update [state]
+  (let [bob-ch (-> (select-one [(keypath Bob) :channel] state)
                    (assoc :signed false))]
-    (->> step-send-update-plan
-         (setval [(channel-state (-> bob-ch :channel-id))]
+    (->> state
+         (setval [(chain-channel (-> bob-ch :channel-id))]
                  bob-ch))))
 
-(def step-alice-withdraw
-  (let [alice-ch (select-one [(channel-state alice-bob-cid) :left] step-update)]
-    (->> step-update
-       (transform [(weth-balance Alice)]
-                  (partial inc-by (:withdrawal alice-ch))))))
+(defn step-alice-withdraw [state]
+  (let [alice-ch (select-one [(chain-channel (channel-id state Alice)) :left] state)]
+    (->> state
+         (transform [(weth-balance Alice)]
+                    (partial inc-by (:withdrawal alice-ch))))))
 
-(def step-bob-withdraw
-  (let [bob-ch (select-one [(channel-state alice-bob-cid) :right] step-alice-withdraw)]
-    (->> step-alice-withdraw
+(defn step-bob-withdraw [state]
+  (let [bob-ch (select-one [(chain-channel (channel-id state Alice)) :right] state)]
+    (->> state
          (transform [(weth-balance Bob)]
                     (partial inc-by (:withdrawal bob-ch))))))
 
@@ -187,15 +187,18 @@
 ;   Conditional payment
 
 (def steps
-  [initial-state
-   step-open-channel
-   step-deposit-plan
-   step-deposit
-   step-deposit-event
-   step-transfer-plan
-   step-transfer
-   step-update-plan
-   step-send-update-plan
-   step-update
-   step-alice-withdraw
-   step-bob-withdraw])
+  (->> [#'step-open-channel
+        #'step-deposit-plan
+        #'step-deposit
+        #'step-deposit-event
+        #'step-transfer-plan
+        #'step-transfer
+        #'step-update-plan
+        #'step-send-update-plan
+        #'step-update
+        #'step-alice-withdraw
+        #'step-bob-withdraw]
+       (reductions (fn [state xform]
+                     (-> state xform (assoc :xform (-> xform meta :name))))
+                   initial-state)
+       vec))

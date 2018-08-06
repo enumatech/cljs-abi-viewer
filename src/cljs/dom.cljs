@@ -103,6 +103,10 @@
       (> num 0) (span {:class "number positive"} (pr-str num))
       :else (span {:class "number zero"} (pr-str num))))
 
+  function
+  (render [f]
+    (text (pr-str f)))
+
   Keyword
   (render [num] (span {:class "keyword"} (code (pr-str num))))
 
