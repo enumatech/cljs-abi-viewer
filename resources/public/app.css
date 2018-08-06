@@ -20,30 +20,6 @@ td,th { border: solid 1px lightblue; padding: 0.2em;}
 
 .party img { width: 36px; height: 36px; }
 
-.abi { border: none; }
-.abi h4 { margin-block-end: 0; }
-.abi th { text-align: right; vertical-align: text-top; }
-.abi th { padding: 0.5em 0.5em; }
-
-.abi .input,
-.abi .return {
-    display: inline-block;
-    padding: 0.2em 0.5em;
-    margin: 0.2em 0.2em;
-    border: 1px dotted gray;
-    border-radius: 4px;
-}
-
-.abi .return { background-color: wheat; border: none; }
-
-.abi .type { font-style: italic; color: grey; }
-.abi .indexed { font-weight: bold; }
-
-.dex { width: 100%; table-layout: fixed; }
-.dex > tr > th { max-width: 0; }
-.dex > tr { vertical-align: top }
-.dex > tr > td { padding: 1em; }
-
 table.signed td {
     background: repeating-linear-gradient(
             -45deg,
