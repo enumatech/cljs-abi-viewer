@@ -1,5 +1,5 @@
 ^{:css-dirs ["resources/public"]}
-{:main         dex.viewer
+{:main         history.viewer
  :foreign-libs [{:file     "node_modules/highland/dist/highland.js"
                  :file-min "node_modules/highland/dist/highland.min.js"
                  :provides ["highland.js"]
