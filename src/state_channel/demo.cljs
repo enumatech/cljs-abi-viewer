@@ -170,10 +170,16 @@
                  bob-ch))))
 
 (def step-alice-withdraw
-  step-update)
+  (let [alice-ch (select-one [(channel-state alice-bob-cid) :left] step-update)]
+    (->> step-update
+       (transform [(weth-balance Alice)]
+                  (partial inc-by (:withdrawal alice-ch))))))
 
 (def step-bob-withdraw
-  step-alice-withdraw)
+  (let [bob-ch (select-one [(channel-state alice-bob-cid) :right] step-alice-withdraw)]
+    (->> step-alice-withdraw
+         (transform [(weth-balance Bob)]
+                    (partial inc-by (:withdrawal bob-ch))))))
 
 ; TODO
 ;   Non-cooperative withdrawal
@@ -191,6 +197,5 @@
    step-update-plan
    step-send-update-plan
    step-update
-   step-alice-withdraw])
-
-
+   step-alice-withdraw
+   step-bob-withdraw])
