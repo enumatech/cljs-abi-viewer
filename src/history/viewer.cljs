@@ -17,7 +17,7 @@
 
 (defn viewer [state]
   (fragment
-    (h1 "Application history viewer (time: " (:time state) ")")
+    (h1 "Application state @ step " (:time state))
     (h2 "State")
     ;(h-array state-channel.demo/steps)
     state))

@@ -48,6 +48,7 @@
 (def span (H "span"))
 (def code (H "code"))
 (def i (H "i"))
+(def b (H "b"))
 (def img (H "img"))
 (def br (H "br"))
 (def hr (H "hr"))

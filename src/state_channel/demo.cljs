@@ -2,10 +2,10 @@
   (:require [com.rpl.specter :as s
              :refer [NIL->SET VAL END NONE-ELEM NONE MAP-KEYS
                      keypath subset set-elem path]
-             :refer-macros [select transform setval]]
+             :refer-macros [select select-one transform setval]]
             [cljs.dom
              :refer [Elem render log mount $ text elem frag fragment
-                     div span i img br hr h1 h2 h3 h4 hr ul li table tr th td
+                     div span i b img br hr h1 h2 h3 h4 hr ul li table tr th td
                      v-array h-array v-map h-map x xi]
              :as dom]))
 
@@ -23,14 +23,15 @@
                    credit " credit, "
                    withdrawal " withdrawal"))))
 
-(defrecord Channel [channel-id round left right])
+(defrecord Channel [channel-id round left right signed])
 
 (extend-type Channel dom/Elem
-  (render [{:keys [channel-id round left right] :as ch}]
+  (render [{:keys [channel-id round left right signed] :as ch}]
     (let [side-row (fn [{:keys [party deposit credit withdrawal] :as _side}]
                      (tr (th party) (td deposit) (td credit) (td withdrawal)))]
-      (table
-        (tr (td (i (str "chID: " channel-id)) (br) (str "Round: " round))
+      (table (if signed {:class "signed"} {})
+        (tr (td (i (str "chID: " channel-id)) (br)
+                (str "Round: " round))
             (th "Deposit") (th "Credit") (th "Withdrawal"))
         (side-row left)
         (side-row right)))))
@@ -118,7 +119,7 @@
 (def step-deposit-event
   (->> step-deposit
        (setval [(keypath Bob) :channel]
-               (select (channel-state alice-bob-cid) step-deposit))))
+               (select-one (channel-state alice-bob-cid) step-deposit))))
 
 (def step-transfer-plan
   (-> step-deposit-event
@@ -127,7 +128,47 @@
 (def step-transfer
   (->> step-transfer-plan
        (setval [(keypath Bob) :channel]
-               (select [(keypath Alice) :channel] step-transfer-plan))))
+               (select-one [(keypath Alice) :channel] step-transfer-plan))))
+
+(defn channel-balance [ch side]
+  (let [{:keys [deposit credit withdrawal]} (-> ch side)]
+    (-> deposit
+        (+ credit)
+        (- withdrawal))))
+
+
+(def step-update-plan
+  (let [alice-ch (select-one [(keypath Alice) :channel] step-transfer)]
+    (->> step-transfer
+         (setval [(keypath Alice) :channel :left :withdrawal]
+                 (channel-balance alice-ch :left))
+         (setval [(keypath Alice) :channel :right :withdrawal]
+                 (channel-balance alice-ch :right))
+         (transform [(keypath Alice) :channel :round] inc)
+         (setval [(keypath Alice) :channel :signed] true))))
+
+(def step-send-update-plan
+  (->> step-update-plan
+       (setval [(keypath Bob) :channel]
+               (select-one [(keypath Alice) :channel] step-update-plan))))
+
+(def step-update
+  (let [bob-ch (-> (select-one [(keypath Bob) :channel] step-send-update-plan)
+                   (assoc :signed false))]
+    (->> step-send-update-plan
+         (setval [(channel-state (-> bob-ch :channel-id))]
+                 bob-ch))))
+
+(def step-alice-withdraw
+  step-update)
+
+(def step-bob-withdraw
+  step-alice-withdraw)
+
+; TODO
+;   Non-cooperative withdrawal
+;   Tokens
+;   Conditional payment
 
 (def steps
   [initial-state
@@ -136,4 +177,10 @@
    step-deposit
    step-deposit-event
    step-transfer-plan
-   step-transfer])
+   step-transfer
+   step-update-plan
+   step-send-update-plan
+   step-update
+   step-alice-withdraw])
+
+

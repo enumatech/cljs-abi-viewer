@@ -42,3 +42,13 @@ td,th { border: solid 1px lightblue; padding: 0.2em;}
 .dex > tr > th { max-width: 0; }
 .dex > tr { vertical-align: top }
 .dex > tr > td { padding: 1em; }
+
+table.signed td {
+    background: repeating-linear-gradient(
+            -45deg,
+            palegoldenrod,
+            palegoldenrod 10px,
+            lightyellow 10px,
+            lightyellow 20px
+    );
+}

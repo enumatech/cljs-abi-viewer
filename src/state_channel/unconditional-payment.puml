@@ -10,23 +10,46 @@ actor Bob as B
 
 note over weth: Balances:\n  Alice: 50\n  Bob: 80\n  reg: 0
 note over reg: channel count: 0
-A -> reg: Open channel
-note over reg: channel count: 1
-note over reg: **cID:** 0\n**Alice**\n  0 Deposit\n  0 Credit\n  0 Withdrawal\n**Bob**\n  0 Deposit\n  0 Credit\n  0 Withdrawal
-reg -> reg: LogChannel(\n  ID: 1,\n  left: Alice,\n  right: Bob)
-reg --> A: Channel ID: 1
-reg --> B: Channel ID: 1
-...
-note over A: **Alice**\n  10 Deposit
-A -> reg: Deposit 10 WETH
-note over reg: **Alice**\n  10 Deposit
-reg -> weth: transferFrom(\n  Alice, itself, 10 WETH)
-note over weth: Balances:\n  Alice: 40\n  Bob: 80\n  reg: 10
-reg --> B: Deposit(Alice, cID: 1, 10)
-note over B: **Alice**\n  10 Deposit
-...
-note over A: **Alice**\n  10 Deposit\n -7 Credit\n**Bob**\n  7 Credit
-A -> B: send(7, over cID 1)
-note over B: **Alice**\n  10 Deposit\n -7 Credit\n**Bob**\n  7 Credit
+
+group Open channel
+    A -> reg: Open channel
+    note over reg: channel count: 1
+    note over reg: **chID:** 0\n**Alice**\n  0 Deposit\n  0 Credit\n  0 Withdrawal\n**Bob**\n  0 Deposit\n  0 Credit\n  0 Withdrawal
+    reg -> reg: LogChannel(\n  ID: 1,\n  left: Alice,\n  right: Bob)
+    reg --> A: Channel ID: 1
+    reg --> B: Channel ID: 1
+end
+
+group Deposit
+    note over A: **Alice**\n  10 Deposit
+    A -> reg: Deposit 10 WETH
+    note over reg: **Alice**\n  10 Deposit
+    reg -> weth: transferFrom(\n  Alice, itself, 10 WETH)
+    note over weth: Balances:\n  Alice: 40\n  Bob: 80\n  reg: 10
+    reg --> B: Deposit(Alice, chID: 1, 10)
+    note over B: **Alice**\n  10 Deposit
+end
+
+group Transfer
+    note over A: **Alice**\n  10 Deposit\n -7 Credit\n**Bob**\n  7 Credit
+    A -> B: send(7, over chID 1)
+    note over B: **Alice**\n  10 Deposit\n -7 Credit\n**Bob**\n  7 Credit
+end
+
+group Cooperative Settle by Alice
+    note right A: Balance = Deposit + Credit - Withdraw
+    note over A: **Alice**\n  -7 Credit\n  3 Withdrawal\n**Bob**\n  7 Credit\n  7 Withdrawal
+    A -> B: send signed channel state
+    B -> reg: update(channel)
+    note over reg: **Alice**\n  10 Deposit\n  -7 Credit\n  3 Withdrawal\n**Bob**\n  0 Deposit\n  7 Credit\n  7 Withdrawal
+
+    A -> reg: Withdraw
+    reg -> weth: transfer 3 WETH to Alice
+    note over weth: Balances:\n  Alice: 43\n  Bob: 80\n  reg: 7
+
+    B -> reg: Withdraw
+    reg -> weth: transfer 7 WETH to Bob
+    note over weth: Balances:\n  Alice: 43\n  Bob: 87\n  reg: 0
+end
 
 @enduml
