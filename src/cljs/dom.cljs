@@ -19,7 +19,7 @@
                   kid)))
       (catch js/TypeError e
         (js/console.error "Can't render elem" (type kid) (pr-str kid))
-        (throw e)
+        ;(throw e)
         (append node
                 (text (pr-str kid))))))
   node)
@@ -80,16 +80,22 @@
 
 (defn v-map [m]
   (letfn [(column [[key val]]
-            (tr (th (text (pr-str key)))
+            (tr (th {} key)
                 (td {} val)))]
     (x column m)))
 
 (defn h-map [m]
   (fragment
-    (tr (x (fn [[key _val]] (th (text (pr-str key)))) m))
+    (tr (x (fn [[key _val]] (th {} key)) m))
     (tr (x (fn [[_key val]] (td {} val)) m))))
 
+(defn robohash [name & [set]]
+  (str "https://robohash.org/" name (when set (str "?set=set" set))))
+
 (extend-protocol Elem
+  boolean
+  (render [num] (span {:class "boolean"} (pr-str num)))
+
   number
   (render [num]
     (cond
@@ -102,6 +108,9 @@
 
   string
   (render [s] (text s))
+
+  LazySeq
+  (render [a-seq] (span {:class "seq"} (v-array a-seq)))
 
   PersistentVector
   (render [v] (span {:class "vector"} (v-array v)))

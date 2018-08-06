@@ -6,29 +6,34 @@
             [cljs.dom
              :refer [Elem render log mount $ text elem frag fragment
                      div span i b img br hr h1 h2 h3 h4 hr ul li table tr th td
-                     v-array h-array v-map h-map x xi]
+                     v-array h-array v-map h-map x xi robohash]
              :as dom]))
 
-(def Alice :Alice)
-(def Bob :Bob)
-(def Charlie :Charlie)
-(def Dave :Dave)
-(def Eve :Eve)
+(defrecord Party [nickname])
+
+(extend-type Party
+  Elem
+  (render [{:keys [nickname]}]
+    (span {:class "party"}
+          (img {:src (robohash nickname 3)})
+          ;(br)
+          nickname))
+
+  IPrintWithWriter
+  (-pr-writer [party writer _opts]
+    (-write writer (:nickname party))))
+
+(def Alice (->Party "Alice"))
+(def Bob (->Party "Bob"))
 
 (defrecord ChannelSide [party deposit credit withdrawal])
-(extend-type ChannelSide dom/Elem
-  (render [{:keys [party deposit credit withdrawal] :as side}]
-    (dom/text (str (name party) ": "
-                   deposit " deposit, "
-                   credit " credit, "
-                   withdrawal " withdrawal"))))
 
 (defrecord Channel [channel-id round left right signed])
 
 (extend-type Channel dom/Elem
   (render [{:keys [channel-id round left right signed] :as ch}]
     (let [side-row (fn [{:keys [party deposit credit withdrawal] :as _side}]
-                     (tr (th party) (td deposit) (td credit) (td withdrawal)))]
+                     (tr (th {} party) (td deposit) (td credit) (td withdrawal)))]
       (table (if signed {:class "signed"} {})
         (tr (td (i (str "chID: " channel-id)) (br)
                 (str "Round: " round))
@@ -36,14 +41,19 @@
         (side-row left)
         (side-row right)))))
 
+(defrecord System [])
+(extend-type System Elem
+  (render [sys] (v-map sys)))
+
 (def initial-state
-  {Alice             {:channel nil}
-   :channel-registry {:channel-counter 0
-                      :channels        {}}
-   :weth             {:balanceOf {Alice      50
-                                  Bob        80
-                                  "Registry" 0}}
-   Bob               {:channel nil}})
+  (map->System
+    {Alice             {:channel nil}
+     :channel-registry {:channel-counter 0
+                        :channels        {}}
+     :weth             {:balanceOf {Alice      50
+                                    Bob        80
+                                    "Registry" 0}}
+     Bob               {:channel nil}}))
 
 ; ============  Paths and helper functions  ==============
 
