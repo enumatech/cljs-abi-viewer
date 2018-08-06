@@ -90,7 +90,10 @@
 
 (extend-protocol Elem
   number
-  (render [num] (span {:class "number"} (pr-str num)))
+  (render [num]
+    (if (zero? num)
+     (span {:class "number zero"} (pr-str num))
+     (span {:class "number"} (pr-str num))))
 
   Keyword
   (render [num] (span {:class "keyword"} (code (pr-str num))))
