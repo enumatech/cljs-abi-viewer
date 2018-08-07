@@ -43,7 +43,13 @@
 
 (defrecord System [])
 (extend-type System Elem
-  (render [sys] (v-map sys)))
+  (render [{:keys [xform] :as sys}]
+    (let [xf (meta xform)]
+      (fragment
+        (h2 (or (:doc xf) (:name xf)))
+        (-> sys
+            (dissoc :time :xform)
+            v-map)))))
 
 (def initial-state
   (map->System
@@ -120,33 +126,47 @@
 
 ; ============  Steps  ==============
 
-(defn step-open-channel [state]
+(defn step-open-channel
+  "Alice opens a channel with Bob"
+  [state]
   (-> state
       (open-channel Alice Bob)))
 
-(defn step-deposit-plan [state]
+(defn step-deposit-plan
+  "Alice prepares a deposit plan"
+  [state]
   (-> state
       (deposit-plan Alice (channel-id state Alice) 10)))
 
-(defn step-deposit [state]
+(defn step-deposit
+  "Alice submits a deposit transaction to the channel registry contract"
+  [state]
   (-> state
       (deposit Alice (channel-id state Alice) 10)))
 
-(defn step-deposit-event [state]
+(defn step-deposit-event
+  "The registry contract emits a `Deposit` event"
+  [state]
   (->> state
        (setval [(keypath Bob) :channel]
                (select-one (chain-channel (channel-id state Alice)) state))))
 
-(defn step-transfer-plan [state]
+(defn step-transfer-plan
+  "Alice plans a transfer"
+  [state]
   (-> state
       (transfer-plan Alice Bob (channel-id state Alice) 7)))
 
-(defn step-transfer [state]
+(defn step-transfer
+  "Alice sends a new state of the channel to Bob, which represents a transfer"
+  [state]
   (->> state
        (setval [(keypath Bob) :channel]
                (select-one [(keypath Alice) :channel] state))))
 
-(defn step-update-plan [state]
+(defn step-update-plan
+  "Alice prepares a withdrawal"
+  [state]
   (let [alice-ch      (path [(keypath Alice) :channel])
         alice-channel (select-one alice-ch state)]
     (->> state
@@ -157,25 +177,33 @@
          (transform [alice-ch :round] inc)
          (setval [alice-ch :signed] true))))
 
-(defn step-send-update-plan [state]
+(defn step-send-update-plan
+  "Alice sends the new state with the withdrawal to Bob directly"
+  [state]
   (->> state
        (setval [(keypath Bob) :channel]
                (select-one [(keypath Alice) :channel] state))))
 
-(defn step-update [state]
+(defn step-update
+  "Bob sends the withdrawal state via the `update` method of the channel registry"
+  [state]
   (let [bob-ch (-> (select-one [(keypath Bob) :channel] state)
                    (assoc :signed false))]
     (->> state
          (setval [(chain-channel (-> bob-ch :channel-id))]
                  bob-ch))))
 
-(defn step-alice-withdraw [state]
+(defn step-alice-withdraw
+  "Alice withdraws her token from the channel registry"
+  [state]
   (let [alice-ch (select-one [(chain-channel (channel-id state Alice)) :left] state)]
     (->> state
          (transform [(weth-balance Alice)]
                     (partial inc-by (:withdrawal alice-ch))))))
 
-(defn step-bob-withdraw [state]
+(defn step-bob-withdraw
+  "Bob withdraws his token from the channel registry"
+  [state]
   (let [bob-ch (select-one [(chain-channel (channel-id state Alice)) :right] state)]
     (->> state
          (transform [(weth-balance Bob)]
@@ -185,6 +213,9 @@
 ;   Non-cooperative withdrawal
 ;   Tokens
 ;   Conditional payment
+
+(defn next-step [state xform]
+  (-> state xform (assoc :xform xform)))
 
 (def steps
   (->> [#'step-open-channel
@@ -198,7 +229,5 @@
         #'step-update
         #'step-alice-withdraw
         #'step-bob-withdraw]
-       (reductions (fn [state xform]
-                     (-> state xform (assoc :xform (-> xform meta :name))))
-                   initial-state)
+       (reductions next-step initial-state)
        vec))
