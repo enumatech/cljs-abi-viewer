@@ -9,29 +9,46 @@ box "Blockchain" #lightblue
     participant "ASD Channel" as asdch
     participant "WETH token" as weth
     participant "ASD token" as asd
-end box
+    participant "Orders" as O
+    end box
 
 actor Bob as B
 
 note over weth: **Balances**:\n  50 — Alice\n  10 — WETH Channel
 note over asd: **Balances**:\n  80 — Bob\n  20 — ASD Channel
 
-note over wethch: **chID:** 1\n**Alice**\n  10 Deposit\n  0 Credit\n  0 Withdrawal\n**Bob**\n  0 Deposit\n  0 Credit\n  0 Withdrawal
+note over wethch: **chID:** 1\nround: 0\n**Alice**\n  10 Deposit
 
-note over asdch: **chID:** 1\n**Alice**\n  0 Deposit\n  0 Credit\n  0 Withdrawal\n**Bob**\n  20 Deposit\n  0 Credit\n  0 Withdrawal
+note over asdch: **chID:** 1\nround: 0\n**Bob**\n  20 Deposit
+
+group Order
+    note over B: Sell 5 ASD\nBuy 7 WETH
+    B -> O:
+    O -> A:
+end
 
 group Conditional transfer
-    A -> A: secret X
-    A -> B: H(X), WETH round++, WETH payment struct
+    note over A: generate secret X\nh = Hash(X)
+    note over A: **chID:** 1\nround: 1\n**Alice**\n  10 Deposit\nPayment(Alice , Bob, h, 7)\nSig
+    A -> B: send payment
     B -> B: verify
-    B -> A: H(X), ASD round++, ASD payment struct
+    note over B: **chID:** 2\nround: 1\n**Bob**\n  20 Deposit\nPayment(Bob, Alice, h, 5)\nSig
+    B -> A: send payment
     A -> A: verify
 end
 
+group Secret exchange
+ A -> B: X
+ B -> B: verify \n H(X) = h
+end
+
 group Unconditional transfer
-    A -> B: X
-    B -> A: send WETH
-    A -> B: send ASD
+    note over A: **chID:** 1\nround: 2\n**Alice**\n  10 Deposit\n  -7 Credit\n**Bob**\n  7 Credit\nPayment(0)\nSig
+
+    B -> A: send updated channel state
+
+    note over B: **chID:** 2\nround: 2\n**Alice**\n  5 Credit\n**Bob**\n  20 Deposit\n  -5 Credit\nPayment(0)\nSig
+    A -> B: send updated channel state
 end
 
 group Cooperative settle initiated by Alice
