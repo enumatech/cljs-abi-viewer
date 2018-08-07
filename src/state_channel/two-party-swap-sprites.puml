@@ -14,12 +14,11 @@ box "Blockchain" #lightblue
 
 actor Bob as B
 
-note over weth: **Balances**:\n  50 — Alice\n  10 — WETH Channel
-note over asd: **Balances**:\n  80 — Bob\n  20 — ASD Channel
+note over weth: **Balances**:\n  50 WETH — Alice\n  10 WETH — WETH Channel
+note over asd: **Balances**:\n  80 ASD — Bob\n  20 ASD — ASD Channel
 
-note over wethch: **chID:** 1\nround: 0\n**Alice**\n  10 Deposit
-
-note over asdch: **chID:** 1\nround: 0\n**Bob**\n  20 Deposit
+note over wethch: **ch1(WETH)**/round0\n**Alice**\n  10 deposit
+note over asdch: **ch2(ASD)**/round0\n**Bob**\n  20 deposit
 
 group Order
     note over B: Sell 5 ASD\nBuy 7 WETH
@@ -28,26 +27,26 @@ group Order
 end
 
 group Conditional transfer
-    note over A: generate secret X\nh = Hash(X)
-    note over A: **chID:** 1\nround: 1\n**Alice**\n  10 Deposit\nPayment(Alice , Bob, h, 7)\nSig
+    note over A: generate secret Secret\nh = Hash(Secret)
+    note over A: **ch1(WETH)**/round1\n**Alice**\n  10 WETH deposit\nPayment(to Bob, h, 7)\nSig(Alice)
     A -> B: send payment
     B -> B: verify
-    note over B: **chID:** 2\nround: 1\n**Bob**\n  20 Deposit\nPayment(Bob, Alice, h, 5)\nSig
+    note over B: **ch2(ASD)**/round1\n**Bob**\n  20 deposit\nPayment(to Alice, h, 5)\nSig(Bob)
     B -> A: send payment
     A -> A: verify
 end
 
 group Secret exchange
- A -> B: X
- B -> B: verify \n H(X) = h
+ A -> B: Secret
+ B -> B: verify \n Hash(Secret) = h
 end
 
 group Unconditional transfer (order of messages is interchangeable)
-    note over A: **chID:** 1\nround: 2\n**Alice**\n  10 Deposit\n  -7 Credit\n**Bob**\n  7 Credit\nPayment(0)\nSig
+    note over A: **ch1(WETH)**/round2\n**Alice**\n  10 deposit\n  -7 credit\n**Bob**\n  7 credit\nNo Payment\nSig(Alice)
 
     A -> B: send updated channel state
 
-    note over B: **chID:** 2\nround: 2\n**Alice**\n  5 Credit\n**Bob**\n  20 Deposit\n  -5 Credit\nPayment(0)\nSig
+    note over B: **ch2(ASD)**/round2\n**Alice**\n  5 credit\n**Bob**\n  20 deposit\n  -5 credit\nNo Payment\nSig(Bob)
     B -> A: send updated channel state
 end
 
