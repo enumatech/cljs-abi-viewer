@@ -1,0 +1,40 @@
+@startuml
+title Two party swap with Sprites
+' Assume we have an open channel with sufficient deposit
+
+actor Alice as A
+
+box "Blockchain" #lightblue
+    participant "WETH Channel" as wethch
+    participant "ASD Channel" as asdch
+    participant "WETH token" as weth
+    participant "ASD token" as asd
+end box
+
+actor Bob as B
+
+note over weth: **Balances**:\n  50 — Alice\n  10 — WETH Channel
+note over asd: **Balances**:\n  80 — Bob\n  20 — ASD Channel
+
+note over wethch: **chID:** 1\n**Alice**\n  10 Deposit\n  0 Credit\n  0 Withdrawal\n**Bob**\n  0 Deposit\n  0 Credit\n  0 Withdrawal
+
+note over asdch: **chID:** 1\n**Alice**\n  0 Deposit\n  0 Credit\n  0 Withdrawal\n**Bob**\n  20 Deposit\n  0 Credit\n  0 Withdrawal
+
+group Conditional transfer
+    A -> A: secret X
+    A -> B: H(X), WETH round++, WETH payment struct
+    B -> B: verify
+    B -> A: H(X), ASD round++, ASD payment struct
+    A -> A: verify
+end
+
+group Unconditional transfer
+    A -> B: X
+    B -> A: send WETH
+    A -> B: send ASD
+end
+
+group Cooperative settle initiated by Alice
+end
+
+@enduml

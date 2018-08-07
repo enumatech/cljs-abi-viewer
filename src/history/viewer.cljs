@@ -4,9 +4,10 @@
      :refer [Elem render log mount $ text elem frag fragment
              div span i img br hr h1 h2 h3 h4 hr ul li table tr th td
              v-array h-array v-map h-map x xi]]
-    [state-channel.demo]))
+    [state-channel.demo]
+    [state-channel.two-party-swap-sprites :as scenario]))
 
-(def steps state-channel.demo/steps)
+(def steps scenario/steps)
 
 ; Application time
 (defonce T (atom 0))
@@ -16,7 +17,7 @@
 (defn viewer [state]
   (fragment
     (h1 "Application state @ step " (:time state))
-    ;(h-array state-channel.demo/steps)
+    ;(h-array scenario/steps)
     state))
 
 (defn shift? [^js/KeyboardEvent ev]
