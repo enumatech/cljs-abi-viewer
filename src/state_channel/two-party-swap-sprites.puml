@@ -42,13 +42,13 @@ group Secret exchange
  B -> B: verify \n H(X) = h
 end
 
-group Unconditional transfer
+group Unconditional transfer (order of messages is interchangeable)
     note over A: **chID:** 1\nround: 2\n**Alice**\n  10 Deposit\n  -7 Credit\n**Bob**\n  7 Credit\nPayment(0)\nSig
 
-    B -> A: send updated channel state
+    A -> B: send updated channel state
 
     note over B: **chID:** 2\nround: 2\n**Alice**\n  5 Credit\n**Bob**\n  20 Deposit\n  -5 Credit\nPayment(0)\nSig
-    A -> B: send updated channel state
+    B -> A: send updated channel state
 end
 
 group Cooperative settle initiated by Alice
