@@ -63,9 +63,6 @@
 
 ; ============  Paths and helper functions  ==============
 
-(defn dec-by [by amount] (- amount by))
-(defn inc-by [by amount] (+ amount by))
-
 (defn weth-balance [party]
   (path [:weth :balanceOf (keypath party)]))
 
@@ -110,22 +107,19 @@
 
 (defn deposit-plan [state party channel-id amount]
   (->> state
-       (transform [(keypath party) :channel :left :deposit]
-                  (partial inc-by amount))
+       (transform [(keypath party) :channel :left :deposit] #(+ % amount))
        (transform [(keypath party) :channel :round] inc)))
-
-(defn transfer-plan [state src dst channel-id amount]
-  (->> state
-       (transform [(keypath src) :channel :left :credit]
-                  (partial dec-by amount))
-       (transform [(keypath src) :channel :right :credit]
-                  (partial inc-by amount))
-       (transform [(keypath src) :channel :round] inc)))
 
 (defn deposit [state party channel-id amount]
   (->> (transfer state party "Registry" amount)
-       (transform [(chain-channel channel-id) :left :deposit] (partial inc-by amount))
+       (transform [(chain-channel channel-id) :left :deposit] #(+ % amount))
        (transform [(chain-channel channel-id) :round] inc)))
+
+(defn transfer-plan [state src dst channel-id amount]
+  (->> state
+       (transform [(keypath src) :channel :left :credit] #(- % amount))
+       (transform [(keypath src) :channel :right :credit] #(+ % amount))
+       (transform [(keypath src) :channel :round] inc)))
 
 ; ============  Steps  ==============
 
