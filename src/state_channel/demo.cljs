@@ -15,7 +15,7 @@
   Elem
   (render [{:keys [nickname]}]
     (span {:class "party"}
-          ;(img {:src (robohash nickname 3)})
+          (img {:src (robohash nickname 3)})
           ;(br)
           nickname))
 
