@@ -15,7 +15,7 @@
   Elem
   (render [{:keys [nickname]}]
     (span {:class "party"}
-          (img {:src (robohash nickname 3)})
+          ;(img {:src (robohash nickname 3)})
           ;(br)
           nickname))
 
@@ -83,6 +83,11 @@
 
 ; ============  Actions  ==============
 
+(defn transfer [state src dst amount]
+  (->> state
+       (transform (weth-balance src) #(- % amount))
+       (transform (weth-balance dst) #(+ % amount))))
+
 (defn open-channel [state party1 party2]
   (let [channel-id (-> state :channel-registry :channel-counter)
         channel    (map->Channel {:channel-id channel-id
@@ -118,9 +123,7 @@
        (transform [(keypath src) :channel :round] inc)))
 
 (defn deposit [state party channel-id amount]
-  (->> state
-       (transform (weth-balance party) (partial dec-by amount))
-       (transform (weth-balance "Registry") (partial inc-by amount))
+  (->> (transfer state party "Registry" amount)
        (transform [(chain-channel channel-id) :left :deposit] (partial inc-by amount))
        (transform [(chain-channel channel-id) :round] inc)))
 
@@ -197,17 +200,13 @@
   "Alice withdraws her token from the channel registry"
   [state]
   (let [alice-ch (select-one [(chain-channel (channel-id state Alice)) :left] state)]
-    (->> state
-         (transform [(weth-balance Alice)]
-                    (partial inc-by (:withdrawal alice-ch))))))
+    (transfer state "Registry" Alice (:withdrawal alice-ch))))
 
 (defn step-bob-withdraw
   "Bob withdraws his token from the channel registry"
   [state]
   (let [bob-ch (select-one [(chain-channel (channel-id state Alice)) :right] state)]
-    (->> state
-         (transform [(weth-balance Bob)]
-                    (partial inc-by (:withdrawal bob-ch))))))
+    (transfer state "Registry" Bob (:withdrawal bob-ch))))
 
 ; TODO
 ;   Non-cooperative withdrawal
