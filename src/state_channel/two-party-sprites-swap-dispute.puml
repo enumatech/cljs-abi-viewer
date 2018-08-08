@@ -30,9 +30,9 @@ group Bob tries to take out his WETH
     asdch -> pm: revealed(h)
     note over asdch: Secret revealed in time.\nCredit payment to Alice.
 
-    A -> asdch: widthdraw
+    A -> asdch: withdraw
     asdch --> asd: transfer 5 ASD to Alice
-    B -> asdch: widthdraw
+    B -> asdch: withdraw
     asdch --> asd: transfer 15 ASD to Bob
 
     B -> wethch: finalize
@@ -45,6 +45,5 @@ end
 
 note over weth: **Balances**:\n  53 WETH — Alice\n  7 WETH — Bob\n  0 WETH — WETH Channel
 note over asd: **Balances**:\n  5 ASD — Alice\n  95 ASD — Bob\n  0 ASD — ASD Channel
-
 
 @enduml
