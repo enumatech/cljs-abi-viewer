@@ -7,6 +7,7 @@ box "Blockchain" #lightblue
     participant "WETH token" as weth
     participant "ASD token" as asd
     participant "Orders" as O
+    participant "Preimage\nManager" as pm
     end box
 
 actor Bob as B
@@ -14,8 +15,8 @@ actor Bob as B
 note over weth: **Balances**:\n  50 WETH — Alice\n  10 WETH — WETH Channel
 note over asd: **Balances**:\n  80 ASD — Bob\n  20 ASD — ASD Channel
 
-note over wethch: **ch1(WETH)**/round0\n**Alice**\n  10 deposit
-note over asdch: **ch2(ASD)**/round0\n**Bob**\n  20 deposit
+note over wethch: **ch-WETH** @ round 0\n**Alice**\n  10 deposit
+note over asdch: **ch-ASD** @ round 0\n**Bob**\n  20 deposit
 
 group Order
     note over B: Sell 5 ASD\nBuy 7 WETH
@@ -25,10 +26,10 @@ end
 
 group Conditional transfer
     note over A: generate secret Secret\nh = Hash(Secret)
-    note over A: **ch1(WETH)**/round1\n**Alice**\n  10 WETH deposit\nPayment(to Bob, h, 7)\nSig(Alice)
+    note over A: **ch-WETH** @ round 1\n**Alice**\n  10 WETH deposit\nPayment(to Bob, h, 7)\nSig(Alice)
     A -> B: send payment
     B -> B: verify
-    note over B: **ch2(ASD)**/round1\n**Bob**\n  20 deposit\nPayment(to Alice, h, 5)\nSig(Bob)
+    note over B: **ch-ASD** @ round 1\n**Bob**\n  20 deposit\nPayment(to Alice, h, 5)\nSig(Bob)
     B -> A: send payment
     A -> A: verify
 end
