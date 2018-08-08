@@ -6,7 +6,7 @@ title Two party swap via trusted DEX
 actor Alice as A
 
 box "Blockchain" #lightblue
-    participant "WETH Channel\nAlice-DEX\nAlice" as wethalice
+    participant "WETH Channel\nAlice-DEX" as wethalice
     participant "ASD Channel\nAlice-DEX" as asdalice
     participant "DEX" as dex
     participant "WETH Channel\nBob-DEX" as wethbob
