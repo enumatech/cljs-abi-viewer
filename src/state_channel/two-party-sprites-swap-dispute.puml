@@ -1,0 +1,40 @@
+@startuml
+title Two party swap with Sprites
+' Assume we have an open channel with sufficient deposit
+
+!include ./two-party-sprites-swap-setup.iuml
+
+group Unconditional transfer (order of messages is interchangeable)
+    note over A: **ch1(WETH)**/round2\n**Alice**\n  10 deposit\n  -7 credit\n**Bob**\n  7 credit\nNo Payment\nSig(Alice)
+
+    A -> B: send updated channel state
+
+    note over B: Does not prepare and send **ch2(ASD)**/round2
+end
+group Unconditional transfer (order of messages is interchangeable)
+    note over A: **ch1(WETH)**/round2\n**Alice**\n  10 deposit\n  -7 credit\n**Bob**\n  7 credit\nNo Payment\nSig(Alice)
+
+    A -> B: send updated channel state
+
+    note over B #white: <strike>**ch2(ASD)**/round2</strike>\n**Alice**\n  5 credit\n**Bob**\n  20 deposit\n  -5 credit\nNo Payment\nSig(Bob)
+    B -X A: send updated channel state
+end
+
+
+group Bob tries to take out his WETH
+    B -> wethch: trigger a dispute for ch1(WETH)
+    B -> wethch: update to ch1(WETH)/round2
+
+    A -> asdch: trigger a dispute for ch2(ASD)
+    A -> pm: register(Secret, ch1(WETH))
+    A -> wethch: update to ch2(ASD)/round1
+    A -> asdch: finalize ch2(ASD)
+    A -> asdch: widthdraw ch2(ASD)
+    asdch --> asd: transfer to Alice
+
+    B -> wethch: finalize ch1(WETH)
+    B -> wethch: withdraw ch1(WETH)
+    wethch --> weth: transfer to Bob
+end
+
+@enduml

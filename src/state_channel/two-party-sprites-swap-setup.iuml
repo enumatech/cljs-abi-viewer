@@ -1,7 +1,4 @@
 @startuml
-title Two party swap with Sprites
-' Assume we have an open channel with sufficient deposit
-
 actor Alice as A
 
 box "Blockchain" #lightblue
@@ -39,18 +36,6 @@ end
 group Secret exchange
  A -> B: Secret
  B -> B: verify \n Hash(Secret) = h
-end
-
-group Unconditional transfer (order of messages is interchangeable)
-    note over A: **ch1(WETH)**/round2\n**Alice**\n  10 deposit\n  -7 credit\n**Bob**\n  7 credit\nNo Payment\nSig(Alice)
-
-    A -> B: send updated channel state
-
-    note over B: **ch2(ASD)**/round2\n**Alice**\n  5 credit\n**Bob**\n  20 deposit\n  -5 credit\nNo Payment\nSig(Bob)
-    B -> A: send updated channel state
-end
-
-group Cooperative settle initiated by Alice
 end
 
 @enduml

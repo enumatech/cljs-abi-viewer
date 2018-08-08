@@ -1,0 +1,29 @@
+@startuml
+title Two party swap with Sprites
+' Assume we have an open channel with sufficient deposit
+
+!include ./two-party-sprites-swap-setup.iuml
+
+group Unconditional transfer (order of messages is interchangeable)
+    note over A: **ch1(WETH)**/round2\n**Alice**\n  10 deposit\n  -7 credit\n**Bob**\n  7 credit\nNo Payment\nSig(Alice)
+
+    A -> B: send updated channel state
+
+    note over B: **ch2(ASD)**/round2\n**Alice**\n  5 credit\n**Bob**\n  20 deposit\n  -5 credit\nNo Payment\nSig(Bob)
+    B -> A: send updated channel state
+end
+
+group Cooperative withdrawal initiated by Alice
+    note over A: **ch2(ASD)**/round3\n**Alice**\n  5 credit\n  5 withdrawal\n**Bob**\n  20 deposit\n  -5 credit\nNo Payment\nSig(Alice)
+
+    A -> B: I want to withdraw 5 ASD from ch2(ASD), like ... right now
+
+    note over B: **ch2(ASD)**/round3\n**Alice**\n  5 credit\n  5 withdrawal\n**Bob**\n  20 deposit\n  -5 credit\nNo Payment\nSig(Bob)
+
+    B -> A: Yes, Alice, you can withdraw immediately
+    A -> asdch: update
+    A -> asdch: withdraw
+    asdch -> asd: transfer ASD
+    asd --> A: 5 ASD
+end
+@enduml
