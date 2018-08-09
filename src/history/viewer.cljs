@@ -4,8 +4,8 @@
      :refer [Elem render log mount $ text elem frag fragment
              div span i img br hr h1 h2 h3 h4 hr ul li table tr th td
              v-array h-array v-map h-map x xi]]
-    [state-channel.demo]
-    [state-channel.two-party-swap-sprites :as scenario]))
+    [state-channel.demo :as scenario]
+    [state-channel.two-party-swap-sprites]))
 
 (def steps scenario/steps)
 
