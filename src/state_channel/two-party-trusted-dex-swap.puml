@@ -18,14 +18,43 @@ box "Blockchain" #lightblue
 
 actor Bob as B
 
-' note over weth: **Balances**:\n  50 Alice\n  10 Alice-Dex\n100 Bob-Dex
-' / note over asd: **Balances**:\n  80 Bob\n  20 Bob-Dex\n  10 Alice-Dex
+'note over weth
+'    **Balances**:
+'      50 Alice
+'      10 Alice-Dex
+'      100 Bob-Dex
+'end note
+'
+'/ note over asd
+'    **Balances**:
+'      80 Bob
+'      20 Bob-Dex
+'      10 Alice-Dex
+'end note
 
-note over wethalice: round 0\n**Alice**\n  10 deposit
-/ note over asdalice: round 0\n**DEX**\n  10 deposit
-/ note over wethbob: round 0\n**DEX**\n  100 deposit
-/ note over asdbob: round 0\n**Bob**\n  20 deposit
+note over wethalice
+    round 0
+    **Alice**
+    10 deposit
+end note
 
+/ note over asdalice
+    round 0
+    **DEX**
+      10 deposit
+end note
+
+/ note over wethbob
+    round 0
+    **DEX**
+    100 deposit
+end note
+
+/ note over asdbob
+    round 0
+    **Bob**
+    20 deposit
+end note
 
 
 group Order
@@ -39,9 +68,21 @@ group Unconditional transfer to DEX
     A -> dex: 7 WETH
     B -> dex: 5 ASD
 
-    note over wethalice: round 1\n**Alice**\n  -7 credit\n**DEX**\n  7 credit
-    / note over asdbob: round 1\n**Bob**\n  -5 credit\n**DEX**\n 5 credit
+    note over wethalice
+        round 1
+        **Alice**
+          -7 credit
+        **DEX**
+          7 credit
+    end note
 
+    / note over asdbob
+        round 1
+        **Bob**
+          -5 credit
+        **DEX**
+           5 credit
+    end note
 end
 
 group Unconditional transfer to Users
@@ -49,15 +90,21 @@ group Unconditional transfer to Users
     dex -> B: 7 WETH
     dex -> A: 5 ASD
 
-    note over wethbob: round 1\n**Bob**\n  7 credit\n**DEX**\n  -7 credit
-    / note over asdalice: round 1\n**Alice**\n  5 credit\n**DEX**\n  -5 credit
+    note over wethbob
+        round 1
+        **Bob**
+          7 credit
+        **DEX**
+          -7 credit
+    end note
 
+    / note over asdalice
+        round 1
+        **Alice**
+          5 credit
+        **DEX**
+          -5 credit
+    end note
 end
-
-
-
-
-' note over weth: **Balances**:\n  53 WETH — Alice\n  7 WETH — Bob\n  0 WETH — WETH Channel
-' / note over asd: **Balances**:\n  5 ASD — Alice\n  95 ASD — Bob\n  0 ASD — ASD Channel
 
 @enduml

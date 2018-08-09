@@ -5,20 +5,60 @@ title Two party swap with Sprites
 !include ./two-party-sprites-swap-setup.iuml
 
 group Unconditional transfer (order of messages is interchangeable)
-    note over A: **ch-WETH** @ round 2\n**Alice**\n  10 deposit\n  -7 credit\n**Bob**\n  7 credit\nNo Payment\nSig(Alice)
+    note over A
+        **ch-WETH** @ round 2
+        **Alice**
+          10 deposit
+          -7 credit
+        **Bob**
+          7 credit
+        No Payment
+        Sig(Alice)
+    end note
+
 
     A -> B: send updated channel state
 
-    note over B: **ch-ASD** @ round 2\n**Alice**\n  5 credit\n**Bob**\n  20 deposit\n  -5 credit\nNo Payment\nSig(Bob)
+    note over B
+        **ch-ASD** @ round 2
+        **Alice**
+          5 credit
+        **Bob**
+          20 deposit
+          -5 credit
+        No Payment
+        Sig(Bob)
+    end note
+
     B -> A: send updated channel state
 end
 
 group Cooperative withdrawal initiated by Alice
-    note over A: **ch-ASD** @ round 3\n**Alice**\n  5 credit\n  5 withdrawal\n**Bob**\n  20 deposit\n  -5 credit\nNo Payment\nSig(Alice)
+    note over A
+        **ch-ASD** @ round 3
+        **Alice**
+          5 credit
+          5 withdrawal
+        **Bob**
+          20 deposit
+          -5 credit
+        No Payment
+        Sig(Alice)
+     end note
 
     A -> B: I want to withdraw 5 ASD from ch-ASD, like ... right now
 
-    note over B: **ch-ASD** @ round 3\n**Alice**\n  5 credit\n  5 withdrawal\n**Bob**\n  20 deposit\n  -5 credit\nNo Payment\nSig(Bob)
+    note over B
+        **ch-ASD** @ round 3
+        **Alice**
+          5 credit
+          5 withdrawal
+        **Bob**
+          20 deposit
+          -5 credit
+        No Payment
+        Sig(Bob)
+     end note
 
     B -> A: Yes, Alice, you can withdraw immediately
     A -> asdch: update
@@ -27,7 +67,18 @@ group Cooperative withdrawal initiated by Alice
     asd --> A: 5 ASD
 end
 
-note over weth: **Balances**:\n  50 WETH — Alice\n  0 WETH — Bob\n  10 WETH — WETH Channel
-note over asd: **Balances**:\n  5 ASD — Alice\n  80 ASD — Bob\n  15 ASD — ASD Channel
+note over weth
+    **Balances**:
+      50 WETH — Alice
+      0 WETH — Bob
+      10 WETH — WETH Channel
+end note
+
+note over asd
+    **Balances**:
+      5 ASD — Alice
+      80 ASD — Bob
+      15 ASD — ASD Channel
+end note
 
 @enduml
