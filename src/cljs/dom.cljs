@@ -111,7 +111,9 @@
   (render [num] (span {:class "keyword"} (code (pr-str num))))
 
   string
-  (render [s] (text s))
+  (render [s] (text (if (< 100 (count s))
+                        (str (subs s 0 100) "...")
+                        s)))
 
   LazySeq
   (render [a-seq] (span {:class "seq"} (v-array a-seq)))
@@ -127,6 +129,9 @@
                     (map #(attrs % {:class "elem"}))))))
 
   PersistentArrayMap
+  (render [m] (table {:class "map"} (v-map m)))
+
+  PersistentHashMap
   (render [m] (table {:class "map"} (v-map m)))
 
   Symbol
