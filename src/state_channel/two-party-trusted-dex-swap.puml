@@ -14,7 +14,7 @@ box "Blockchain" #lightblue
     ' participant "WETH token" as weth
     ' participant "ASD token" as asd
     participant "Orders" as O
-    end box
+end box
 
 actor Bob as B
 
@@ -35,7 +35,7 @@ actor Bob as B
 note over wethalice
     round 0
     **Alice**
-    10 deposit
+      10 deposit
 end note
 
 / note over asdalice
@@ -47,13 +47,13 @@ end note
 / note over wethbob
     round 0
     **DEX**
-    100 deposit
+      100 deposit
 end note
 
 / note over asdbob
     round 0
     **Bob**
-    20 deposit
+      20 deposit
 end note
 
 

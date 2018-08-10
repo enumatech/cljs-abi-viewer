@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Deps: com.bhauman/figwheel-core:0.1.6-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/bhauman/figwheel-core/0.1.6-SNAPSHOT/figwheel-core-0.1.6-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
