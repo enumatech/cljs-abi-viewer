@@ -1,9 +1,15 @@
 (ns eth.explorer
-  (:require [cljs.dom
-             :refer [mount $ log]]
-            [highland.js :as S]))
+  (:require [cljs.dom :refer [mount $ log]]
+            [highland.js :as S]
+            [kitchen-async.promise :as p]
+            [cljs.pprint :refer [pprint]]))
 
-(def node-url "http://localhost:8420/")
+(defn sleep [t]
+  (js/Promise.
+    (fn [resolve reject]
+      (js/setTimeout #(resolve 1234) t))))
+
+(def node-url "http://localhost:8430/")
 
 (def #_once state (atom "Loading..."))
 
@@ -51,16 +57,29 @@
       (.flatMap (comp S (partial apply fetch)))
       (.flatMap (comp S (memfn json)))
       (.map (comp :result as-clj))
+      (.toPromise js/Promise)))
+
+(defn rpc! [& args]
+  (-> (->> args (apply json-rpc) post-opts (vector node-url) array S)
+      (.flatMap (comp S (partial apply fetch)))
+      (.flatMap (comp S (memfn json)))
+      (.map (comp :result as-clj))
+      (.errors #(js/console.error "RPC failed" %))
       (.toArray #(reset! state (first %)))))
 
-;(rpc "eth_blockNumber")
-;(rpc "eth_getBlockByNumber" "0x2a87c8" true)
-(rpc "eth_getLogs" {:fromBlock "0x263C1E" :toBlock "0x2b87c8" :address "0x475CDA4A73EE3f01748a9D553A8c19Ca2853A8Aa"})
-;(rpc "eth_accounts")
+(p/let [blk# (rpc "eth_blockNumber")
+        blk  (rpc "eth_getBlockByNumber" blk# true)]
+  (pprint blk#))
+
+(rpc! "eth_blockNumber")
+(rpc! "eth_getBlockByNumber" "0x2a87c8" true)
+;(rpc* "eth_getLogs" {:fromBlock "0x263C1E" :toBlock "0x2b87c8" :address "0x475CDA4A73EE3f01748a9D553A8c19Ca2853A8Aa"})
+;(rpc* "eth_accounts")
 
 (show-app @state)
 
 (comment
+  (reset! state "Hello David!")
   (-> "{\"jsonrpc\":\"2.0\",\"method\":\"web3_clientVersion\",\"params\":[],\"id\":67}"
       js/JSON.parse (js->clj :keywordize-keys true))
 

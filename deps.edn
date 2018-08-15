@@ -6,9 +6,19 @@
            ;binaryage/dirac                 {:mvn/version "1.2.36"}
            ;philoskim/debux                 {:mvn/version "0.4.8"}
            cider/piggieback                {:mvn/version "0.3.8"}
-           com.bhauman/figwheel-main       {:mvn/version "0.1.6-SNAPSHOT"}
+           com.bhauman/figwheel-main       {:mvn/version "0.1.8-SNAPSHOT"}
            com.bhauman/rebel-readline-cljs {:mvn/version "0.1.4"}
-           com.rpl/specter                 {:mvn/version "1.1.1"}}
+           com.rpl/specter                 {:mvn/version "1.1.1"}
+           kitchen-async                   {:mvn/version "0.1.0-SNAPSHOT"}}
+
 
  :aliases {:dev   {:main-opts ["-m" "figwheel.main" "-b" "dev" "-r"]}
-           :build {:main-opts ["-m" "figwheel.main" "--build-once" "build"]}}}
+
+           :build {:main-opts ["-m" "figwheel.main" "--build-once" "build"]}
+
+           :repl  {:extra-deps {nrepl/nrepl      {:mvn/version "0.4.4"}
+                                cider/piggieback {:mvn/version "0.3.8"}}
+                   :main-opts  ["-m" "nrepl.cmdline"
+                                "--middleware" "[cider.piggieback/wrap-cljs-repl]"
+                                "--port" "7888"]}}}
+
