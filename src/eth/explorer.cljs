@@ -4,11 +4,6 @@
             [kitchen-async.promise :as p]
             [cljs.pprint :refer [pprint]]))
 
-(defn sleep [t]
-  (js/Promise.
-    (fn [resolve reject]
-      (js/setTimeout #(resolve 1234) t))))
-
 (def node-url "http://localhost:8430/")
 
 (def #_once state (atom "Loading..."))
@@ -79,9 +74,8 @@
 (show-app @state)
 
 (comment
-  (reset! state "Hello David!")
   (-> "{\"jsonrpc\":\"2.0\",\"method\":\"web3_clientVersion\",\"params\":[],\"id\":67}"
-      js/JSON.parse (js->clj :keywordize-keys true))
+      js/JSON.parse as-clj)
 
   (defn load-contracts-with-promise-all []
     (letfn [(load-contract [contract-name-kw]
