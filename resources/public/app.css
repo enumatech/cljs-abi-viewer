@@ -8,8 +8,8 @@ table {
     margin: 0.5em;
 }
 
-th { background-color: aliceblue; vertical-align: top; }
-td,th { border: solid 1px lightblue; padding: 0.2em;}
+th { background-color: aliceblue; }
+td,th { border: solid 1px lightblue; padding: 0.2em; vertical-align: top; }
 
 .number.positive { color: green; }
 .number.zero { color: lightgray; }

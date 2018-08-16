@@ -1,12 +1,22 @@
 (ns eth.explorer
-  (:require [cljs.dom :refer [mount $ log]]
-            [highland.js :as S]
-            [kitchen-async.promise :as p]
-            [cljs.pprint :refer [pprint]]))
+  (:require
+    [clojure.string :as str]
+    [com.rpl.specter :as s
+     :refer [NIL->SET VAL END NONE-ELEM NONE MAP-KEYS MAP-VALS ALL FIRST
+             keypath subset set-elem path selected? submap view]
+     :refer-macros [select select-one transform setval]]
 
-(def node-url "http://localhost:8430/")
+    [cljs.dom :refer [mount $ log fragment
+                      table tr td th]]
 
-(def #_once state (atom "Loading..."))
+    [kitchen-async.promise :as p]
+    [cljs.pprint :refer [pprint]]
+    [eth.contract]
+    [eth.fixtures]))
+
+(def node-url "http://localhost:8420/")
+
+(def #_once state (atom {:msg "Loading..."}))
 
 (declare app)
 
@@ -19,8 +29,41 @@
 
 (add-watch state :app-state on-state-change)
 
+
+
+(defn event-desc [{:keys [name inputs]}]
+  (str name "(" (str/join "," (map :type inputs)) ")"))
+
+
 (defn app [state]
-  state)
+  (let [contracts   (:contracts state)
+        event-ifs   (->> contracts
+                         (select [MAP-VALS :jsonInterface ALL
+                                  (selected? [:type #(= % "event")])]))
+
+        event-types (->> event-ifs
+                         (mapcat (juxt :signature event-desc))
+                         (apply hash-map))
+
+        events      (:events state)
+        events     (transform [ALL :topics FIRST]
+                              event-types
+                              events)
+        {txs :transactions :as blk} (:block state)
+        blk-meta    (dissoc blk :transactions)]
+    (table
+      (tr
+        (th "Events")
+        (th "Event interfaces")
+        (th "Contracts")
+        (th "Block"))
+      (tr
+        (td {} events)
+        (td {} event-ifs)
+        (td {} contracts)
+        (td {}
+            blk-meta
+            txs)))))
 
 (defn as-clj [o] (js->clj o :keywordize-keys true))
 
@@ -29,12 +72,6 @@
             :mode    "cors"
             :headers {"Content-Type" "application/json; charset=utf-8"}
             :body    (js/JSON.stringify (clj->js data))}))
-
-(def |cljson
-  (S/pipeline
-    (S/flatMap (comp S (partial apply js/fetch)))
-    (S/flatMap (comp S (memfn json)))
-    (S/map as-clj)))
 
 (defn json-rpc [method & params] {:jsonrpc "2.0", :method method, :params (vec params), :id 123})
 (def web3-version (partial json-rpc "web3_clientVersion"))
@@ -47,62 +84,40 @@
 
 (def fetch (js/fetch.bind js/window))
 
-(defn rpc [& args]
-  (-> (->> args (apply json-rpc) post-opts (vector node-url) array S)
-      (.flatMap (comp S (partial apply fetch)))
-      (.flatMap (comp S (memfn json)))
-      (.map (comp :result as-clj))
-      (.toPromise js/Promise)))
+(defn rpc [& [method & params]]
+  (letfn [(response-to-result-or-error [js-response]
+            (let [{:keys [result error]} (as-clj js-response)]
+              (p/resolve (or result
+                             {:error  error
+                              :method method
+                              :params (vec params)}))))]
+    (p/-> (->> params (apply json-rpc method) post-opts (vector (str node-url method))
+               (apply fetch))
+          ((memfn json))
+          response-to-result-or-error)))
 
-(defn rpc! [& args]
-  (-> (->> args (apply json-rpc) post-opts (vector node-url) array S)
-      (.flatMap (comp S (partial apply fetch)))
-      (.flatMap (comp S (memfn json)))
-      (.map (comp :result as-clj))
-      (.errors #(js/console.error "RPC failed" %))
-      (.toArray #(reset! state (first %)))))
+;==================== Main ==============
 
-(p/let [blk# (rpc "eth_blockNumber")
-        blk  (rpc "eth_getBlockByNumber" blk# true)]
-  (pprint blk#))
-
-(rpc! "eth_blockNumber")
-(rpc! "eth_getBlockByNumber" "0x2a87c8" true)
+;(rpc! "eth_blockNumber")
+;(rpc! "eth_getBlockByNumber" "0x2a87c8" true)
 ;(rpc* "eth_getLogs" {:fromBlock "0x263C1E" :toBlock "0x2b87c8" :address "0x475CDA4A73EE3f01748a9D553A8c19Ca2853A8Aa"})
 ;(rpc* "eth_accounts")
 
+(p/try
+  (p/let [contract-names           [:oax :weth]
+          contract-json-interfaces (p/all (map eth.contract/load contract-names))
+          contracts                (zipmap contract-names contract-json-interfaces)
+          block                    (rpc "eth_getBlockByNumber" "0x2a87c8" true)
+          events                   (rpc "eth_getLogs" {:fromBlock "0x263C1E"
+                                                       :toBlock   "0x2b87c8"
+                                                       :address   "0x475CDA4A73EE3f01748a9D553A8c19Ca2853A8Aa"})]
+
+    (swap! state assoc
+           :contracts contracts
+           :block block
+           :events events))
+  (p/catch js/Error e
+    (js/console.error e)
+    (reset! state eth.fixtures/example-state)))
+
 (show-app @state)
-
-(comment
-  (-> "{\"jsonrpc\":\"2.0\",\"method\":\"web3_clientVersion\",\"params\":[],\"id\":67}"
-      js/JSON.parse as-clj)
-
-  (defn load-contracts-with-promise-all []
-    (letfn [(load-contract [contract-name-kw]
-              (-> contract-name-kw contract-file fetch/cljson
-                  (.then #(swap! state assoc contract-name-kw %))))]
-
-      (-> (map load-contract contract-names) into-array js/Promise.all
-          (.then #(render @state)))))
-
-  (defn load-contracts-with-stream-chain []
-    (re-render-on-state-change)
-
-    (let [filename$ (-> contract-filenames to-array S)]
-      (-> filename$
-          (.flatMap (comp S js/fetch))
-          (.flatMap (comp S (memfn json)))
-          (.map as-clj)
-          (.toArray reset-contracts!))))
-
-  (defn load-contracts-with-stream-pipeline []
-    (re-render-on-state-change)
-
-    (let [filename$ (-> contract-filenames to-array S)
-          |cljson   (S/pipeline
-                      (S/flatMap (comp S js/fetch))
-                      (S/flatMap (comp S (memfn json)))
-                      (S/map as-clj))]
-      (-> filename$
-          (.pipe |cljson)
-          (.toArray reset-contracts!)))))
