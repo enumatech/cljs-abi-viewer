@@ -1,9 +1,11 @@
-(ns eth.core-test
+(ns cards.demo
   (:require [devcards.core :as dc]
             [cljs.dom :refer [log mount h1 div v-map]])
   (:require-macros
     [cljs.test :refer [is testing]]
     [devcards.core :refer [defcard deftest dom-node]]))
+
+;(devcards.core/start-devcard-ui!)
 
 (defcard my-first-card
   (dom-node
