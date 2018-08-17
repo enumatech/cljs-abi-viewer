@@ -6,8 +6,8 @@
       <sourceFolder url="file://$MODULE_DIR$/resources" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/target" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/scripts" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/scripts" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/.cpcache" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
@@ -109,5 +109,13 @@
     <orderEntry type="library" name="Deps: org.clojure/tools.namespace:0.2.11" level="project" />
     <orderEntry type="library" name="Deps: org.clojure/java.classpath:0.2.3" level="project" />
     <orderEntry type="library" name="Deps: joda-time:2.8.2" level="project" />
+    <orderEntry type="library" name="Deps: devcards:0.2.5" level="project" />
+    <orderEntry type="library" name="Deps: cljsjs/react-dom:15.5.4-0" level="project" />
+    <orderEntry type="library" name="Deps: sablono:0.8.1" level="project" />
+    <orderEntry type="library" name="Deps: cljsjs/showdown:1.4.2-0" level="project" />
+    <orderEntry type="library" name="Deps: cljsjs/react:15.5.4-0" level="project" />
+    <orderEntry type="library" name="Deps: org.omcljs/om:1.0.0-alpha48" level="project" />
+    <orderEntry type="library" name="Deps: com.cognitect/transit-cljs:0.8.239" level="project" />
+    <orderEntry type="library" name="Deps: com.cognitect/transit-js:0.8.846" level="project" />
   </component>
 </module>

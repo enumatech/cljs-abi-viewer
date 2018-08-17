@@ -2,7 +2,7 @@
   (:require [figwheel.main.api :as fig]))
 
 (defn start []
-  (fig/start {:mode :serve} "dev"))
+  (fig/start {:mode :serve} "dev" "devcards"))
 
 (defn cljs-repl [& [build-id]]
   (fig/cljs-repl (or build-id "dev")))

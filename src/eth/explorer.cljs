@@ -14,7 +14,7 @@
     [eth.contract]
     [eth.fixtures]))
 
-(def node-url "http://localhost:8420/")
+(def node-url "http://localhost:8410/")
 
 (def #_once state (atom {:msg "Loading..."}))
 
@@ -104,13 +104,17 @@
 ;(rpc* "eth_accounts")
 
 (p/try
-  (p/let [contract-names           [:oax :weth]
-          contract-json-interfaces (p/all (map eth.contract/load contract-names))
-          contracts                (zipmap contract-names contract-json-interfaces)
-          block                    (rpc "eth_getBlockByNumber" "0x2a87c8" true)
-          events                   (rpc "eth_getLogs" {:fromBlock "0x263C1E"
-                                                       :toBlock   "0x2b87c8"
-                                                       :address   "0x475CDA4A73EE3f01748a9D553A8c19Ca2853A8Aa"})]
+  (p/let [contract-names    [:oax :weth]
+          contract-json-ifs (p/all (map eth.contract/load contract-names))
+          contracts         (zipmap contract-names contract-json-ifs)
+          block             (rpc "eth_getBlockByNumber" "0x2a87c8" true)
+          events            (rpc "eth_getLogs" {:fromBlock "0x263C1E"
+                                                :toBlock   "0x2b87c8"
+                                                :address   (-> contracts :oax :address)})]
+
+    ; Expose some data to be used in REPL
+    (def oax (:oax contracts))
+    (def weth (:weth contracts))
 
     (swap! state assoc
            :contracts contracts
