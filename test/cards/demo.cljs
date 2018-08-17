@@ -5,8 +5,6 @@
     [cljs.test :refer [is testing]]
     [devcards.core :refer [defcard deftest dom-node]]))
 
-;(devcards.core/start-devcard-ui!)
-
 (defcard my-first-card
   (dom-node
     (fn [data node]

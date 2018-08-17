@@ -3,7 +3,8 @@
     [clojure.string :as str]
     [com.rpl.specter :as s
      :refer [NIL->SET VAL END NONE-ELEM NONE MAP-KEYS MAP-VALS ALL FIRST
-             keypath subset set-elem path selected? submap view]
+             keypath subset set-elem path selected? submap subselect view
+             pred pred= pred> pred< filterer transformed]
      :refer-macros [select select-one transform setval]]
 
     [cljs.dom :refer [mount $ log fragment
@@ -12,6 +13,7 @@
     [kitchen-async.promise :as p]
     [cljs.pprint :refer [pprint]]
     [eth.contract]
+    [eth.event]
     [eth.fixtures]))
 
 (def node-url "http://localhost:8410/")

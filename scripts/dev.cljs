@@ -11,11 +11,13 @@
   (in-ns 'eth.explorer)
   (-> state deref)
   (def contracts (-> state deref :contracts))
-  (let [event-types (->> contracts
-                         (select [MAP-VALS :jsonInterface ALL
-                                  (selected? [:type #(= % "event")])]))
-        ev (get event-types 4)]
-    (event-desc ev))
+
+  ; Events with more than one non-indexed inputs
+  (->> oax :jsonInterface
+       (select [ALL (selected? [:type (pred= "event")])
+                (subselect #(->> % :inputs
+                                 (filter (complement :indexed))
+                                 count (< 1)))]))
 
   (in-ns 'cljs.dom)
   (h1 "asd")

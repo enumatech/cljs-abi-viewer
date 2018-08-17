@@ -1,6 +1,6 @@
 (ns cards.main
   (:require [devcards.core]
             [cards.demo]
-            [eth.core-test]))
+            [eth.event-test]))
 
 (devcards.core/start-devcard-ui!)
