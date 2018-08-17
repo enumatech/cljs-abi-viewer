@@ -1,4 +1,6 @@
 body { padding: 0.5em; }
+#devcards-link { text-align: right; opacity: 0.1; }
+#devcards-link:hover { opacity: 0.6; }
 
 h2 { text-decoration: gray solid underline; }
 
