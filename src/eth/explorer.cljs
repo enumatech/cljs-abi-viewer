@@ -100,11 +100,6 @@
 
 ;==================== Main ==============
 
-;(rpc! "eth_blockNumber")
-;(rpc! "eth_getBlockByNumber" "0x2a87c8" true)
-;(rpc* "eth_getLogs" {:fromBlock "0x263C1E" :toBlock "0x2b87c8" :address "0x475CDA4A73EE3f01748a9D553A8c19Ca2853A8Aa"})
-;(rpc* "eth_accounts")
-
 (p/try
   (p/let [contract-names    [:oax :weth]
           contract-json-ifs (p/all (map eth.contract/load contract-names))
@@ -127,3 +122,11 @@
     (reset! state eth.fixtures/example-state)))
 
 (show-app @state)
+
+(comment
+  (p/->
+    (rpc "eth_blockNumber")
+    ;(rpc "eth_getBlockByNumber" "0x2a87c8" true)
+    ;(rpc "eth_getLogs" {:fromBlock "0x263C1E" :toBlock "0x2b87c8" :address "0x475CDA4A73EE3f01748a9D553A8c19Ca2853A8Aa"})
+    ;(rpc "eth_accounts")
+    (p/then prn)))
